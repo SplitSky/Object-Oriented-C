@@ -1,0 +1,2 @@
+C:\Users\opopn\Desktop\C++\Object-Oriented-C\GeneralCode\Debug\GeneralCode.exe
+C:\Users\opopn\Desktop\C++\Object-Oriented-C\GeneralCode\Debug\GeneralCode.pdb
