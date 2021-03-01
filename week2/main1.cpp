@@ -33,7 +33,7 @@ int main() {
 	    // declare variables
     int N{0};
     std::string file_line;
-    std::ifstream my_file("courselist.dat");
+    std::fstream my_file("courselist.dat");
 
     if (!my_file.good()) {
         std::cout << "The file couldn't be loaded";
