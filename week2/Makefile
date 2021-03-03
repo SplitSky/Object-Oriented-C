@@ -1,7 +1,5 @@
-all: week2
+main1:
+	g++ -g main1.cpp
 
-week2: main1.o
-	g++ main1.cpp
-
-main1.0: main2.cpp
-	g++ main2.cpp
+main2:
+	g++ -g main2.cpp
