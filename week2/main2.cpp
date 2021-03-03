@@ -1,7 +1,7 @@
 
 // PHYS 30762 Programming in C++
-// Assignment 2
-
+// Assignment 2 - week 2
+// Tomasz Neska - ID: 10294857
 // Program to compute mean, standard deviation and standard
 // error of the a set of courses. Data is read from file
 
@@ -15,13 +15,13 @@
 #include<vector>
 #include<string>
 #include<algorithm>
+#include<sstream>
 
 // structures
 struct list_node {
     double mark;
     int unit_code;
     std::string title;
-    int rank;
 };
 
 // other functions
@@ -202,8 +202,15 @@ int main() {
     bubble_sort(chosen_data,choice); // pass in a reference. Don't return anything just alter memory
 
     //print out data
+    //using string stream
+    std::ostringstream output_stream;
+
     for(int i{};i<chosen_data.size(); i++) {
-        std::cout << "PHYS" << chosen_data[i].unit_code << " " << chosen_data[i].title << std::endl;
+        //std::cout << "PHYS" << chosen_data[i].unit_code << " " << chosen_data[i].title << std::endl;
+        output_stream << "PHYS" << chosen_data[i].unit_code << " " << chosen_data[i].title;
+        std::string output_entry{output_stream.str()};
+        std::cout << output_entry << std::endl;
+        output_stream.str("");
     }
     
     std::cout << std::setprecision(3) << "The mean for the full data set is: " << mean << std::endl;

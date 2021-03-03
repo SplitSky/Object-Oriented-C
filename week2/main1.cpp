@@ -1,4 +1,3 @@
-
 // PHYS 30762 Programming in C++
 // Assignment 2
 // Tomasz Neska 20/02/2021
@@ -6,7 +5,7 @@
 // Program to compute mean, standard deviation and standard
 // error of the a set of courses. Data is read from file
 
-// Skeleton code - assessed components are missing
+// week 1 code
 
 #include<iostream>
 #include<iomanip>
@@ -30,7 +29,7 @@ double splicing(std::string long_string, int first_index, int last_index) {
 // Main function
 
 int main() {
-	    // declare variables
+    // declare variables
     int N{0};
     std::string file_line;
     std::fstream my_file("courselist.dat");
@@ -39,7 +38,6 @@ int main() {
         std::cout << "The file couldn't be loaded";
         return -1;
     } else {
-        // count the number of lines in the file
 	while(!my_file.eof()) {
 	    getline(my_file,file_line);
 	    N++;
@@ -48,7 +46,7 @@ int main() {
     }
     
     std::ifstream my_file2("courselist.dat");
-    std::string *data_array{new std::string[N]}; // stores data as strings
+    std::string *data_array{new std::string[N]};
     double standard_deviation{};
     double mean{};
     double std_error{};
