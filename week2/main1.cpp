@@ -40,11 +40,13 @@ int main() {
     } else {
 	while(!my_file.eof()) {
 	    getline(my_file,file_line);
-	    N++;
+            if(file_line.length()!=0) {
+                N++;
+            }
 	}
 	my_file.close();		
     }
-    
+
     std::ifstream my_file2("courselist.dat");
     std::string *data_array{new std::string[N]};
     double standard_deviation{};
@@ -53,7 +55,7 @@ int main() {
     double sum{0};
     float *scores{new float[N]}; // used for scores
 
-    for(int i{0}; i < N-1; i++) {
+    for(int i{0}; i < N; i++) {
         getline(my_file2, file_line);
         data_array[i] = file_line;
         scores[i] = splicing(file_line,0,3);
@@ -64,10 +66,13 @@ int main() {
     mean = 1/N_2 * sum;
     sum = 0;
 
-    for(int i{0}; i < N-1; i++) {
+    
+
+    for(int i{0}; i < N; i++) {
         sum = sum + pow(scores[i] - mean,2);
+
     }
-    standard_deviation = pow(1/(N_2-1) * sum ,0.5);
+    standard_deviation = pow(1/(N_2) * sum ,0.5);
     std_error = standard_deviation/pow(N_2,0.5);
     delete[] data_array;
     

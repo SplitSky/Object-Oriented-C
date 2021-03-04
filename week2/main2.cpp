@@ -1,4 +1,3 @@
-
 // PHYS 30762 Programming in C++
 // Assignment 2 - week 2
 // Tomasz Neska - ID: 10294857
@@ -6,7 +5,6 @@
 // error of the a set of courses. Data is read from file
 
 // Skeleton code - assessed components are missing
-
 #include<iostream>
 #include<iomanip>
 #include<fstream>
@@ -16,41 +14,36 @@
 #include<string>
 #include<algorithm>
 #include<sstream>
-
 // structures
 struct list_node {
     double mark;
     int unit_code;
     std::string title;
 };
-
 // other functions
-
-
 double calc_mean(std::vector<list_node> data_array) {
     int N = data_array.size();
     double sum{0};
-    for (int i{0};i<=N;i++) {
+    for (int i{0};i<N;i++) {
         sum += data_array[i].mark;
     }
     return sum/static_cast<double>(N);
 }
 
 double calc_std(std::vector<list_node> data_array, double mean) {
-   
     int N = data_array.size();
     double sum{0};
-    for (int i{0}; i<=N; i++) {
-        sum += pow(data_array[i].mark-mean,2);
+    for (int i{0}; i<N; i++) {
+        sum = sum + pow(data_array[i].mark-mean,2);
     }
-    return pow(sum/static_cast<double>(N), 0.5);
+
+    return pow(1/static_cast<double>(N) * sum, 0.5);
 }
-// c++ does things when you use & cuz yes
+
 void bubble_sort(std::vector<list_node>& array, int type) {
     int size = array.size();
     bool swap{true};
     list_node holder;
- 
     if (type==1) {
         while(swap==true) {
             swap = false;
@@ -80,11 +73,9 @@ void bubble_sort(std::vector<list_node>& array, int type) {
                     holder.mark = array[i-1].mark;
                     holder.unit_code = array[i-1].unit_code;
                     holder.title = array[i-1].title;
-
                     array[i-1].mark = array[i].mark;
                     array[i-1].unit_code = array[i].unit_code;
                     array[i-1].title = array[i].title;
-
                     array[i].mark = holder.mark;
                     array[i].unit_code = holder.unit_code;
                     array[i].title = holder.title;
@@ -100,8 +91,6 @@ int main() {
     list_node temporary;  
     double calc_mean(std::vector<list_node> data_array);
     double calc_std(std::vector<list_node> data_array, double mean);
-    
-
     std::string data_file_name;
     int number_courses{0};
     std::string file_line;
@@ -125,13 +114,8 @@ int main() {
             temporary.mark = std::stod(file_line.substr(0,4));
             temporary.unit_code = std::stoi(file_line.substr(5,9));
             temporary.title = file_line.substr(13,file_line.length());
-
-
             sliced_data.push_back(temporary);
-
             full_data.push_back(file_line.substr(5,file_line.length()));
-            //scores.push_back(std::stod(file_line.substr(0,4)));
-            
             number_courses ++;
         }
     }
@@ -145,18 +129,15 @@ int main() {
     for (vector_iterator=vector_begin; vector_iterator<vector_end; ++vector_iterator){
         std::cout << "PHYS "<< *vector_iterator << std::endl;
     }
-
     
     double mean = calc_mean(sliced_data);
     double standard_deviation{calc_std(sliced_data,mean)};
     double std_error = standard_deviation/(pow(static_cast<double>(number_courses),0.5));
 
     // Compute mean, standard deviation and  standard error of mean
-    std::cout << std::setprecision(3) << "The mean for the full data set is: " << mean << std::endl;
-    std::cout << std::setprecision(3) << "The standard deviation is: " << standard_deviation << " +- " << std_error <<std::endl;
-    std::cout << std::endl;
+    std::cout << "The mean for the full data set is: " << mean << std::endl;
+    std::cout << "The standard deviation is: " << standard_deviation << " +- " << std_error <<std::endl;
     
-
     int year{0};
     // print out custom range
     std::cout << "Enter the year you want to display: " << std::endl;
@@ -167,56 +148,36 @@ int main() {
         std::cin.ignore();
         std::cin >> year;
     }
-    
-
     // Choose the data
     int choice;
     std::cout << "Sort by [1]title or by [2]unit_code: ";
     std::cin >> choice;
-
     std::string temp;
     std::cout << "The data for the selected range";
-
-    std::cout << sliced_data.size() << std::endl;
-
-
     for(int i{0}; i<sliced_data.size();i++) {
         if(sliced_data[i].unit_code/ 10000 == year) { 
             chosen_data.push_back(sliced_data[i]);
-            std::cout << "PHYS" << std::to_string(sliced_data[i].unit_code) << " " << sliced_data[i].title <<std::endl;
             
         } 
     }
-    
-    
-
     // calculate the mean
     mean = calc_mean(chosen_data);
     // calculate the standard deviation
     standard_deviation = calc_std(chosen_data,mean);
     // calculate the standard deviation error
     std_error = standard_deviation/(pow(static_cast<double>(number_courses),0.5));
-
-    
     // sorting the data
     bubble_sort(chosen_data,choice); // pass in a reference. Don't return anything just alter memory
-
-    //print out data
     //using string stream
     std::ostringstream output_stream;
 
     for(int i{};i<chosen_data.size(); i++) {
-        //std::cout << "PHYS" << chosen_data[i].unit_code << " " << chosen_data[i].title << std::endl;
         output_stream << "PHYS" << chosen_data[i].unit_code << " " << chosen_data[i].title;
         std::string output_entry{output_stream.str()};
         std::cout << output_entry << std::endl;
         output_stream.str("");
     }
-    
-    std::cout << std::setprecision(3) << "The mean for the full data set is: " << mean << std::endl;
-    std::cout << std::setprecision(3) << "The standard deviation is: " << standard_deviation << " +- " << std_error <<std::endl;
-    std::cout << std::endl;
-
+    std::cout << "The mean for the data set is: " << mean << std::endl;
+    std::cout << "The standard deviation is: " << standard_deviation << " +- " << std_error <<std::endl;
     return 0;
 }
-
