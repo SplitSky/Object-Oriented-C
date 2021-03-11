@@ -20,7 +20,7 @@ private:
     double redshift;
     double total_mass;
     double stellar_mass_fraction;
-
+    std::vector<galaxy> satellites;
 
 public:
     // Constructors
@@ -38,8 +38,8 @@ public:
     // Prototype for function to print out an object's data
     void print_data();
     // Add satellite galaxy
-    void add_galaxy() {
-        
+    void add_satellite(galaxy satellite) {
+        satellites.push_back(satellite);
     }
 };
 // Print out an object's data
@@ -47,13 +47,19 @@ void galaxy::print_data() {
     std::cout << "The Hubble Type is: " << this->hubble_type << std::endl;
     std::cout << "The total mass is: " << this->total_mass << std::endl;
     std::cout << "The redshift is: " << this->redshift << std::endl;
-    std::cout << "The stellar mass fraction is: " << this->stellar_mass_fraction << std::endl;:wq
+    std::cout << "The stellar mass fraction is: " << this->stellar_mass_fraction << std::endl;
+    std::cout << "The number of satellites is: " << this->satellites.size() << std::endl;
+    if(this->satellites.size() > 0) {
+        for(int i=0;i<this->satellites.size();i++) {
+            std::cout << "The satellite no." << i+1 << " has the following properties" << std::endl;
+            this->satellites[i].print_data();
+        }
+    }
 }
 // End of class and associated member functions
 
 // Main program
-int main()
-{
+int main() {
     std::string hubble_type = "Irr"; //E0, E7, S0, Sa, Sb, Sc, SBa, SBb, SBc, Irr
     double redshift = 2; // range 0-10
     double total_mass = 10e8; // 10^7 - 10^12
@@ -71,7 +77,9 @@ int main()
     // Change Hubble type from Irr to S0
     g2.change_type("S0");
     // Add satellite galaxies
-
+    g2.add_satellite(g1);
+    // Print out the data again with satellite
+    g2.print_data();
 
     return 0;
 }
