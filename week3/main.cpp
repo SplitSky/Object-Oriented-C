@@ -1,4 +1,3 @@
-
 // PHYS 30762 Programming in C++
 // Tomasz Neska
 // Assignment 4
@@ -50,10 +49,18 @@ void galaxy::print_data() {
     std::cout << "The stellar mass fraction is: " << this->stellar_mass_fraction << std::endl;
     std::cout << "The number of satellites is: " << this->satellites.size() << std::endl;
     if(this->satellites.size() > 0) {
-        for(int i=0;i<this->satellites.size();i++) {
-            std::cout << "The satellite no." << i+1 << " has the following properties" << std::endl;
-            this->satellites[i].print_data();
+        // define an iterator
+        int i{1};
+        std::vector<galaxy>::iterator vector_begin{this->satellites.begin()};
+        std::vector<galaxy>::iterator vector_end{this->satellites.end()};
+        std::vector<galaxy>::iterator vector_iterator;
+
+        for (vector_iterator=vector_begin;vector_iterator<vector_end; ++vector_iterator) {
+            std::cout << "The satellite no." << i << " has the following properties" << std::endl;
+            vector_iterator->print_data();
+            i++;
         }
+        std::cout << std::endl; // a line break ofr better readibiltiy
     }
 }
 // End of class and associated member functions
@@ -80,6 +87,21 @@ int main() {
     g2.add_satellite(g1);
     // Print out the data again with satellite
     g2.print_data();
+
+    hubble_type = "E0"; //E0, E7, S0, Sa, Sb, Sc, SBa, SBb, SBc, Irr
+    redshift = 5; // range 0-10
+    total_mass = 10e9; // 10^7 - 10^12
+    stellar_mass_fraction = 0.03; // 0 - 0.05 
+
+    galaxy g3(redshift, total_mass, stellar_mass_fraction, hubble_type);
+    
+    galaxy g4;
+    galaxy g5;
+    g3.add_satellite(g4);
+    g3.add_satellite(g5);
+    g3.print_data();
+
+
 
     return 0;
 }
