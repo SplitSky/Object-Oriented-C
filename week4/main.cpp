@@ -1,12 +1,11 @@
 // PHYS 30762 Programming in C++
 // Assignment 5
-// Tomasz Neska
+// Tomasz Neska - ID: 10294857
 // Class for complex numbers
 
 #define _USE_MATH_DEFINES
 #include<iostream>
 #include<cmath>
-
 
 class complex
 {
@@ -19,7 +18,6 @@ class complex
         complex(){re=im=0;}
         complex(double real_part, double im_part){re=real_part; im=im_part;}
         ~complex(){}
-
         // Return real component
         double real() {return this->re;}
         // Return imaginary component
@@ -67,7 +65,6 @@ class complex
 
 // Function to overload << operator for complex numbers
 std::ostream& operator<<(std::ostream& os, const complex &number) {
-    
     std::string temp;
     if (number.im >= 0) {
         temp = std::to_string(number.re) + "+" +std::to_string(number.im) + "i";
@@ -95,7 +92,7 @@ int main()
     std::cout << "Argument: " << b.argument() << " Modulus:" << b.modulus() << std::endl;
     // Get conjugates
     std::cout << "Conjugates" << std::endl;
-    std::cout << a.conjugate() << std::endl; // experimental
+    std::cout << a.conjugate() << std::endl;
     std::cout << b.conjugate() << std::endl;
     // Get sum, difference, product and quotient of a and b
     std::cout << "Sum: "<< a+b << std::endl;
