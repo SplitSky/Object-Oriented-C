@@ -9,8 +9,8 @@
 
 class complex
 {
-    // Make function to overload operator<< a friend
     friend std::ostream& operator<<(std::ostream &os, const complex &z);
+    friend std::istream& operator>>(std::ostream &os, const complex &z);
     private:
         double re,im;
     public:
@@ -55,9 +55,6 @@ class complex
         }
         // Overload / operator for division, z1/z2
         complex operator/(const complex &number) const {
-            // factor = number.re*number.re +  number.im*number.im
-            // real: this->re * number.re + this->im * number.im
-            // im: number.re*this->im - number.im*this->re
             complex temp{(this->re * number.re + this->im * number.im)/(number.re*number.re +  number.im*number.im) ,(number.re*this->im - number.im*this->re)/(number.re*number.re +  number.im*number.im)}; 
             return temp;
         }
@@ -72,8 +69,29 @@ std::ostream& operator<<(std::ostream& os, const complex &number) {
         temp = std::to_string(number.re) + std::to_string(number.im) + "i";
     }    
     os << temp;
-    return os; // needs to be a friend function
+    return os; 
     }
+// Function to overload >> operator for complex number
+std::istream& operator>>(std::istream& os, complex &number) {
+    std::string input;
+    os >> input;
+    std::string real;
+    std::string imag;
+    int pivot;
+    for (int i{1};i<input.size();i++) {
+        if ((input[i] == '+') || (input[i] == '-')) {
+            pivot = i;
+            break;
+        }
+    }
+
+    real = input.substr(0,pivot);
+    imag = input.substr(pivot,input.size()-1); 
+    complex temp{std::stod(real), std::stod(imag)};
+    number = temp;
+    return os;
+}
+
 
 int main()
 {  
@@ -103,5 +121,12 @@ int main()
     std::cout << "Complex number a: " << a << std::endl;
     std::cout << "Complex number b: " << b << std::endl;
     
+    // Showing the extraction from an input stream
+    complex c;
+    std::cout << "Enter a complex number in the form a+bi: ";
+    std::cin >> c;
+    std::cout << "Complex number c: "<< c << std::endl;
+
+    std::cout << "the sum of a and c: " << a+c << std::endl;
     return 0;
 }
