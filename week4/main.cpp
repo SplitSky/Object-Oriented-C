@@ -52,12 +52,15 @@ class complex
         }
         // Overload * operator for multiplication, z1*z2
         complex operator*(const complex &number) const {
-            complex temp{number.re*this->re - number.im*this->im, number.im - this->im}; 
+            complex temp{number.re*this->re - number.im*this->im, number.im*this->re + this->im*number.re}; 
             return temp;
         }
         // Overload / operator for division, z1/z2
         complex operator/(const complex &number) const {
-            complex temp{(number.re*this->re - number.im*this->im)/(pow(number.re,2) + pow(number.im,2)) ,(number.im - this->im)/(pow(number.re,2) + pow(number.im,2))}; 
+            // factor = number.re*number.re +  number.im*number.im
+            // real: this->re * number.re + this->im * number.im
+            // im: number.re*this->im - number.im*this->re
+            complex temp{(this->re * number.re + this->im * number.im)/(number.re*number.re +  number.im*number.im) ,(number.re*this->im - number.im*this->re)/(number.re*number.re +  number.im*number.im)}; 
             return temp;
         }
 };
