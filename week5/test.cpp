@@ -47,7 +47,7 @@ public:
 
     void set_row(int row){this->row=row;}
     void set_col(int col){this->col=col;}
-    void set_data(double data){this->data=&data;}
+    void set_data(double data){this->data=data;}
 
     matrix operator+(const matrix &numbers) const {
         if ((this->row == numbers.row) && (this->col == numbers.col)) {
@@ -135,12 +135,12 @@ std::istream& operator>>(std::istream& os, matrix &number) {
     os >> input;
     char char_array[input.length()+1];
     std::strcpy(char_array, input.c_str());
-    //numbers.set_row(stoi(char_array[0]));
-    //numbers.set_col(stoi(char_array[2]));
+    numbers.set_row(stoi(char_array[0]));
+    numbers.set_col(stoi(char_array[2]));
     // index 4 is {
     // index 5 ... len -1 is data.
-    //int i{4};
-    std::cout << char_array[0];
+    int i{4};
+
 
     return os;
 }
@@ -156,9 +156,9 @@ int main() {
     //matrix b(row, col, data2);
     //matrix c = a+b; 
 
-    std::string input = "3,1,{1,0,0,1,1,0}"; // the format is: row, column {data}
+    std::string = "3,1,{1,0,0,1,1,0}"; // the format is: row, column {data}
     // the maximum size is 9x9.
-    std::cout << "potato";
+
 
     matrix a;
     std::cin >> a;
