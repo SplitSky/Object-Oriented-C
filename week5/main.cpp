@@ -130,17 +130,40 @@ std::ostream& operator<<(std::ostream& os, const matrix &numbers) {
     return os;
 }
 
-std::istream& operator>>(std::istream& os, matrix &number) {
+std::istream& operator>>(std::istream& os, matrix &numbers) {
     std::string input;
     os >> input;
-    char char_array[input.length()+1];
+    char char_array[input.size()-1];
     std::strcpy(char_array, input.c_str());
-    //numbers.set_row(stoi(char_array[0]));
-    //numbers.set_col(stoi(char_array[2]));
-    // index 4 is {
-    // index 5 ... len -1 is data.
-    //int i{4};
-    std::cout << char_array[0];
+    
+
+    numbers.set_row(stoi(char_array[0]));
+    numbers.set_col(stoi(char_array[2]));
+    std::vector<double> data;
+    double temp_number;
+    std::string temp_string;
+
+    int i{5};
+    bool number_start;
+
+    while (i != input.length()) {
+        number_start = true;
+        temp_string = "";
+        while (number_start) {
+            // once its a number
+            // convert it into a double
+            // assing to some vector for storage
+            
+            temp_string += input[i]; // assign an entry in the string
+            if (input[i]==',') {
+                temp_number = stoi(temp_string);
+                data.push_back(temp_number);
+            } else  if (input[i] ==']') {number_start=false;}
+            i++;
+        }
+    }
+
+    // [134.322,2,3];[1,2,3];[1,2,3]
 
     return os;
 }
@@ -158,7 +181,7 @@ int main() {
 
     std::string input = "3,1,{1,0,0,1,1,0}"; // the format is: row, column {data}
     // the maximum size is 9x9.
-    std::cout << "potato";
+    //std::cout << "potato";
 
     matrix a;
     std::cin >> a;
