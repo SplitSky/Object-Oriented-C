@@ -3,6 +3,7 @@
 // Tomasz Neska - ID: 10294857
 // Matrix Determinants and inverses
 
+#include <fstream>
 #include<iostream>
 #include<cmath>
 #include<vector>
@@ -21,105 +22,126 @@
 // 7. 
 
 class matrix {
-private:
-    int row;
-    int col;
-    double *data;
-public:
-    // constructor default
-    matrix() {
-
-    };
-    // parameter constructor
-    matrix(int row, int col, double data_in[]): row{row}, col{col} {
-        this->data = new double[row*col];
-        for (int i{0}; i<row*col; i++) {
-            this->data[i] = data_in[i];
+    friend std::ostream& operator<<(std::ostream &os, const matrix &numbers);
+    friend std::ifstream& operator>>(std::ifstream &os, matrix &numbers);
+    
+    private:
+        int row;
+        int col;
+        double *data;
+        double det_helper(int row, int col, double *data) {
+            // takes in array, mxn
         }
-    }
-    // destructor
-    ~matrix(){
-        std::cout<<"bye"<<std::endl;
-        delete data;
-    }
-    int get_row(){return this->row;} 
-    int get_col(){return this->col;}
 
-    void set_row(int row){this->row=row;}
-    void set_col(int col){this->col=col;}
-    void set_data(double data){this->data=&data;}
-
-    matrix operator+(const matrix &numbers) const {
-        if ((this->row == numbers.row) && (this->col == numbers.col)) {
-            double *data_added {new double[this->row*this->col]};
-            for (int i{0}; i<this->row*this->col ;i++) {
-                data_added[i] = (this->data[i] + numbers.data[i]);
+    public:
+        // constructor default
+        matrix() = default;
+        // parameter constructor
+        matrix(int row, int col, double data_in[]): row{row}, col{col} {
+            this->data = new double[row*col];
+            for (int i{0}; i<row*col; i++) {
+                this->data[i] = data_in[i];
             }
-            matrix temp(this->row, this->col, data_added);
-            return temp;
-        } else {
-            matrix temp;
-            std::cout << "The dimensions don't match" << std::endl;
-            return temp;
         }
-    }
-
-    matrix operator-(const matrix &numbers) const {
-        if ((this->row == numbers.row) && (this->col == numbers.col)) {
-            double *data_added {new double[this->row*this->col]};
-            for (int i{0}; i<this->row*this->col ;i++) {
-                data_added[i] = (this->data[i] - numbers.data[i]);
-            }
-            matrix temp(this->row, this->col, data_added);
-            return temp;
-        } else {
-            matrix temp;
-            std::cout << "The dimensions don't match" << std::endl;
-            return temp;
+        // destructor
+        ~matrix(){
+            std::cout<<"bye"<<std::endl;
+            delete[] data;
         }
-    }
+        int get_row(){return this->row;} 
+        int get_col(){return this->col;}
 
-    matrix operator*(const matrix &numbers) const {
-        // this = a
-        // numbers = b
-        if (this->row == numbers.col) {
-            double sum;
-            double *data_multiplied = new double[this->row*numbers.col];
+        void set_row(int row){this->row=row;}
+        void set_col(int col){this->col=col;}
+        void set_data(double* data){this->data=data;}
 
-            for (int j{0}; j<numbers.col;j++) {
-                for (int i{0}; i < this->row; i++) {
-                    sum = 0;
-                    for (int k{0};k < this->col; k++) {
-                        sum += this->data[(k-1)+(i-1)*this->col] * numbers.data[(j-1)+(k-1)*numbers.col];
-                    }
-                    data_multiplied[(j-1)+this->row*(i-1)] = sum; // adds the entry to the result array
+        matrix operator+(const matrix &numbers) const {
+            if ((this->row == numbers.row) && (this->col == numbers.col)) {
+                double *data_added {new double[this->row*this->col]};
+                for (int i{0}; i<this->row*this->col ;i++) {
+                    data_added[i] = (this->data[i] + numbers.data[i]);
                 }
+                matrix temp(this->row, this->col, data_added);
+                return temp;
+            } else {
+                matrix temp;
+                std::cout << "The dimensions don't match" << std::endl;
+                return temp;
             }
-            matrix temp(this->row, this->col, data_multiplied);
-            return temp;
-        } else {
-            matrix temp;
-            std::cout << "The dimensions don't match" << std::endl;
-            return temp;
         }
-    }
 
-    std::string show_data() const {
-        std::string temp[this->row];
-        std::string temp_string;
-        for (int i{1}; i <= this->row; i++) {
-            temp_string += "[";
-            for (int j{1}; j <= this->col; j++) {
-                temp_string += " ";
-                temp_string += std::to_string(this->data[(j-1)+this->col*(i-1)]) + ", ";
+        matrix operator-(const matrix &numbers) const {
+            if ((this->row == numbers.row) && (this->col == numbers.col)) {
+                double *data_added {new double[this->row*this->col]};
+                for (int i{0}; i<this->row*this->col ;i++) {
+                    data_added[i] = (this->data[i] - numbers.data[i]);
+                }
+                matrix temp(this->row, this->col, data_added);
+                return temp;
+            } else {
+                matrix temp;
+                std::cout << "The dimensions don't match" << std::endl;
+                return temp;
+            }
+        }
+
+        matrix operator*(const matrix &numbers) const {
+            // this = a
+            // numbers = b
+            if (this->row == numbers.col) {
+                double sum;
+                double *data_multiplied = new double[this->row*numbers.col];
+
+                for (int j{0}; j<numbers.col;j++) {
+                    for (int i{0}; i < this->row; i++) {
+                        sum = 0;
+                        for (int k{0};k < this->col; k++) {
+                            sum += this->data[(k-1)+(i-1)*this->col] * numbers.data[(j-1)+(k-1)*numbers.col];
+                        }
+                        data_multiplied[(j-1)+this->row*(i-1)] = sum; // adds the entry to the result array
+                    }
+                }
+                matrix temp(this->row, this->col, data_multiplied);
+                return temp;
+            } else {
+                matrix temp;
+                std::cout << "The dimensions don't match" << std::endl;
+                return temp;
+            }
+        }
+
+        std::string show_data() const {
+            std::string temp[this->row];
+            std::string temp_string;
+            for (int i{1}; i <= this->row; i++) {
+                temp_string += "[";
+                for (int j{1}; j <= this->col; j++) {
+                    temp_string += " ";
+                    temp_string += std::to_string(this->data[(j-1)+this->col*(i-1)]) + ", ";
+                }
+                temp_string = temp_string.substr(0,temp_string.size()-2);
+                temp_string += "], ";
             }
             temp_string = temp_string.substr(0,temp_string.size()-2);
-            temp_string += "], ";
+        return temp_string;
         }
-        temp_string = temp_string.substr(0,temp_string.size()-2);
-    return temp_string;
-    }
+
+        double find_determinant() {
+            if () { 
+
+            }
+        }
+
 };
+
+
+double find_determinant() {
+    // [a,b]
+    // [c,d]
+    // det = a*d - c*b
+    return;
+    }
+
 
 
 
@@ -133,40 +155,47 @@ std::ostream& operator<<(std::ostream& os, const matrix &numbers) {
 std::istream& operator>>(std::istream& os, matrix &numbers) {
     std::string input;
     os >> input;
-    char char_array[input.size()-1];
-    std::strcpy(char_array, input.c_str());
-    
+    //char char_array[input.size()-1];
+    //std::strcpy(char_array, input.c_str());
 
-    numbers.set_row(stoi(char_array[0]));
-    numbers.set_col(stoi(char_array[2]));
+    numbers.set_row(int(input[0])); // may be ASCII
+    numbers.set_col(int(input[2]));
     std::vector<double> data;
     double temp_number;
     std::string temp_string;
-
     int i{5};
-    bool number_start;
+    
 
+    bool number_start;
     while (i != input.length()) {
         number_start = true;
         temp_string = "";
         while (number_start) {
-            // once its a number
-            // convert it into a double
-            // assing to some vector for storage
-            
-            temp_string += input[i]; // assign an entry in the string
             if (input[i]==',') {
-                temp_number = stoi(temp_string);
+                temp_number = stod(temp_string);
                 data.push_back(temp_number);
-            } else  if (input[i] ==']') {number_start=false;}
+                i++;
+                break;
+            } else if (input[i] ==']') {
+                number_start=false;
+                temp_number = stod(temp_string);
+                data.push_back(temp_number);
+            } else {
+                temp_string += input[i];
+            }
             i++;
         }
     }
-
-    // [134.322,2,3];[1,2,3];[1,2,3]
-
+    
+    double* new_data = new double[data.size()];
+    std::copy(data.begin(), data.end(), new_data); 
+    // copies the array into a memory location that doesn't disappear when it goes out of scope.
+    
+    // convert a vector into double array
+    numbers.set_data(&data[0]);
     return os;
 }
+
 
 int main() {
     //std::cout.precision(3);
