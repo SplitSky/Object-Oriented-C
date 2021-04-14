@@ -20,130 +20,27 @@
 // 6. Recursive calculation of a determinant:
 // 7. 
 
-class matrix {
-private:
-    int row;
-    int col;
-    double *data;
-public:
-    // constructor default
-    matrix() {
-
-    };
-    // parameter constructor
-    matrix(int row, int col, double data_in[]): row{row}, col{col} {
-        this->data = new double[row*col];
-        for (int i{0}; i<row*col; i++) {
-            this->data[i] = data_in[i];
-        }
-    }
-    // destructor
-    ~matrix(){
-        std::cout<<"bye"<<std::endl;
-        delete data;
-    }
-    int get_row(){return this->row;} 
-    int get_col(){return this->col;}
-
-    void set_row(int row){this->row=row;}
-    void set_col(int col){this->col=col;}
-    void set_data(double data){this->data=data;}
-
-    matrix operator+(const matrix &numbers) const {
-        if ((this->row == numbers.row) && (this->col == numbers.col)) {
-            double *data_added {new double[this->row*this->col]};
-            for (int i{0}; i<this->row*this->col ;i++) {
-                data_added[i] = (this->data[i] + numbers.data[i]);
-            }
-            matrix temp(this->row, this->col, data_added);
-            return temp;
-        } else {
-            matrix temp;
-            std::cout << "The dimensions don't match" << std::endl;
-            return temp;
-        }
-    }
-
-    matrix operator-(const matrix &numbers) const {
-        if ((this->row == numbers.row) && (this->col == numbers.col)) {
-            double *data_added {new double[this->row*this->col]};
-            for (int i{0}; i<this->row*this->col ;i++) {
-                data_added[i] = (this->data[i] - numbers.data[i]);
-            }
-            matrix temp(this->row, this->col, data_added);
-            return temp;
-        } else {
-            matrix temp;
-            std::cout << "The dimensions don't match" << std::endl;
-            return temp;
-        }
-    }
-
-    matrix operator*(const matrix &numbers) const {
-        // this = a
-        // numbers = b
-        if (this->row == numbers.col) {
-            double sum;
-            double *data_multiplied = new double[this->row*numbers.col];
-
-            for (int j{0}; j<numbers.col;j++) {
-                for (int i{0}; i < this->row; i++) {
-                    sum = 0;
-                    for (int k{0};k < this->col; k++) {
-                        sum += this->data[(k-1)+(i-1)*this->col] * numbers.data[(j-1)+(k-1)*numbers.col];
-                    }
-                    data_multiplied[(j-1)+this->row*(i-1)] = sum; // adds the entry to the result array
-                }
-            }
-            matrix temp(this->row, this->col, data_multiplied);
-            return temp;
-        } else {
-            matrix temp;
-            std::cout << "The dimensions don't match" << std::endl;
-            return temp;
-        }
-    }
-
-    std::string show_data() const {
-        std::string temp[this->row];
-        std::string temp_string;
-        for (int i{1}; i <= this->row; i++) {
-            temp_string += "[";
-            for (int j{1}; j <= this->col; j++) {
-                temp_string += " ";
-                temp_string += std::to_string(this->data[(j-1)+this->col*(i-1)]) + ", ";
-            }
-            temp_string = temp_string.substr(0,temp_string.size()-2);
-            temp_string += "], ";
-        }
-        temp_string = temp_string.substr(0,temp_string.size()-2);
-    return temp_string;
-    }
-};
-
-
-
-std::ostream& operator<<(std::ostream& os, const matrix &numbers) {
-    // modify the temp string by using the matrix object
-    os << "Printing the matrix:" << std::endl;
-    os << numbers.show_data() << std::endl;
-    return os;
+double* glue_matrix(int i_pivot, int j_pivot, double* matrix, int row, int col) {
+    double* new_matrix = new double[matrix.size()];
+    std::copy(matrix.begin(), matrix.end(), new_matrix); 
+    // make sure that matrix is a double array pointer
 }
 
-std::istream& operator>>(std::istream& os, matrix &number) {
-    std::string input;
-    os >> input;
-    char char_array[input.length()+1];
-    std::strcpy(char_array, input.c_str());
-    numbers.set_row(stoi(char_array[0]));
-    numbers.set_col(stoi(char_array[2]));
-    // index 4 is {
-    // index 5 ... len -1 is data.
-    int i{4};
-
-
-    return os;
+double calc_det(double* matrix, int i_min, int i_max, int j_min, int j_max) {
+    // doesn't validate that the matrix is square.
+    if ((j_max - j_min == 1) && (i_max - i_min == 1)) {
+        // the matrix is a 2x2 hence calculate the determinant;
+        return matrix[0] * matrix[3] - matrix[1] * matrix[2];
+    } else {
+        // it's not a 2x2 matrix
+        double determinant;
+        int i{1};
+        for (int j{j_min}; j<j_max; j++) {
+            determinant += pow(-1,i+j) * matrix[(i-1)*(i_max-i_min) + (j-1)] * calc_det(matrix, i_min+1, i_max, )
+        }
+    }
 }
+
 
 int main() {
     //std::cout.precision(3);
@@ -155,6 +52,8 @@ int main() {
     //matrix a(row, col, data);
     //matrix b(row, col, data2);
     //matrix c = a+b; 
+    double mat = {1,2,3,4};
+
 
     std::string = "3,1,{1,0,0,1,1,0}"; // the format is: row, column {data}
     // the maximum size is 9x9.

@@ -29,8 +29,22 @@ class matrix {
         int row;
         int col;
         double *data;
-        double det_helper(int row, int col, double *data) {
+        double calc_det(int row, int col, std::vector<double>) {
+            double determinant{0};
             // takes in array, mxn
+            // top left, top right, bot left, bot right.
+            return determinant;
+
+        }
+
+        std::vector<double> splice_matrix(int i_pivot, int j_pivot, std::vector<double> matrix) {
+            // no need to invlude row and column as it always returns a matrix one smaller in each dimension
+            std::vector<double> new_matrix;
+            for (int i{0}; i<matrix.size(); i++) {
+                if (i != ()) {
+
+                }
+            }
         }
 
     public:
@@ -127,23 +141,12 @@ class matrix {
         }
 
         double find_determinant() {
-            if () { 
-
-            }
+            
+            return calc_determinant(); // use private function as a helper
         }
 
+
 };
-
-
-double find_determinant() {
-    // [a,b]
-    // [c,d]
-    // det = a*d - c*b
-    return;
-    }
-
-
-
 
 std::ostream& operator<<(std::ostream& os, const matrix &numbers) {
     // modify the temp string by using the matrix object
@@ -192,7 +195,7 @@ std::istream& operator>>(std::istream& os, matrix &numbers) {
     // copies the array into a memory location that doesn't disappear when it goes out of scope.
     
     // convert a vector into double array
-    numbers.set_data(&data[0]);
+    numbers.set_data(&new_data[0]); // make sure this actually holds the data
     return os;
 }
 
