@@ -29,22 +29,33 @@ class matrix {
         int row;
         int col;
         double *data;
-        double calc_det(int row, int col, std::vector<double>) {
-            double determinant{0};
-            // takes in array, mxn
-            // top left, top right, bot left, bot right.
-            return determinant;
 
+        double calc_det(int row, std::vector<double> matrix) {
+            // takes in array, mxn
+            if (row == 2) { // col must also be 2 because its a square
+                return matrix[0]*matrix[3] - matrix[1]*matrix[2];
+            } else {
+                double determinant{0};
+                for (int j{0}; j<row; j++) {
+                    determinant += pow(-1, 1+j) * matrix[j] * calc_det(row-1, splice_matrix(1,j,matrix));
+                }
+                return determinant;
+            }
         }
 
         std::vector<double> splice_matrix(int i_pivot, int j_pivot, std::vector<double> matrix) {
             // no need to invlude row and column as it always returns a matrix one smaller in each dimension
             std::vector<double> new_matrix;
-            for (int i{0}; i<matrix.size(); i++) {
-                if (i != ()) {
+            int col = matrix.size()/2;
 
+            for (int j{1}; j<=col; j++) {
+                for (int i{1}; i<=col; i++) {
+                    if ((i != i_pivot) && (j != j_pivot)) {
+                        new_matrix.push_back(matrix[(i-1)*col + (j-1)]);
+                    }
                 }
             }
+            return new_matrix;
         }
 
     public:
@@ -60,9 +71,9 @@ class matrix {
         // destructor
         ~matrix(){
             std::cout<<"bye"<<std::endl;
-            delete[] data;
+            //delete[] data;
         }
-        int get_row(){return this->row;} 
+        int get_row(){return this->row;}
         int get_col(){return this->col;}
 
         void set_row(int row){this->row=row;}
@@ -71,11 +82,13 @@ class matrix {
 
         matrix operator+(const matrix &numbers) const {
             if ((this->row == numbers.row) && (this->col == numbers.col)) {
-                double *data_added {new double[this->row*this->col]};
+                std::vector<double> data_added;
                 for (int i{0}; i<this->row*this->col ;i++) {
-                    data_added[i] = (this->data[i] + numbers.data[i]);
+                    data_added.push_back(this->data[i] + numbers.data[i]);
                 }
-                matrix temp(this->row, this->col, data_added);
+                double* data_assigned = new double[this->row*this->col];
+                std::copy(data_added.begin(), data_added.end(), data_assigned);
+                matrix temp(this->row, this->col, data_assigned);
                 return temp;
             } else {
                 matrix temp;
@@ -86,11 +99,13 @@ class matrix {
 
         matrix operator-(const matrix &numbers) const {
             if ((this->row == numbers.row) && (this->col == numbers.col)) {
-                double *data_added {new double[this->row*this->col]};
+                std::vector<double> data_added;
                 for (int i{0}; i<this->row*this->col ;i++) {
-                    data_added[i] = (this->data[i] - numbers.data[i]);
+                    data_added.push_back(this->data[i] - numbers.data[i]);
                 }
-                matrix temp(this->row, this->col, data_added);
+                double* data_assigned = new double[this->row*this->col];
+                std::copy(data_added.begin(), data_added.end(), data_assigned);
+                matrix temp(this->row, this->col, data_assigned);
                 return temp;
             } else {
                 matrix temp;
@@ -98,6 +113,8 @@ class matrix {
                 return temp;
             }
         }
+
+
 
         matrix operator*(const matrix &numbers) const {
             // this = a
@@ -141,15 +158,15 @@ class matrix {
         }
 
         double find_determinant() {
-            
-            return calc_determinant(); // use private function as a helper
+            std::vector<double> temp_vector;
+            temp_vector.assign(this->data, this->data+(this->row*this->col)); // assigns an array to a vector
+            return this->calc_det(this->row, temp_vector); // use private function as a helper
         }
 
 
 };
 
 std::ostream& operator<<(std::ostream& os, const matrix &numbers) {
-    // modify the temp string by using the matrix object
     os << "Printing the matrix:" << std::endl;
     os << numbers.show_data() << std::endl;
     return os;
@@ -158,10 +175,9 @@ std::ostream& operator<<(std::ostream& os, const matrix &numbers) {
 std::istream& operator>>(std::istream& os, matrix &numbers) {
     std::string input;
     os >> input;
-    //char char_array[input.size()-1];
-    //std::strcpy(char_array, input.c_str());
 
     numbers.set_row(int(input[0])); // may be ASCII
+    std::cout << "The value may be ASCII: " << numbers.get_row() << std::endl;
     numbers.set_col(int(input[2]));
     std::vector<double> data;
     double temp_number;
@@ -201,22 +217,47 @@ std::istream& operator>>(std::istream& os, matrix &numbers) {
 
 
 int main() {
-    //std::cout.precision(3);
+    std::cout.precision(3);
 
-    //int row{2};
-    //int col{2};
-    //double data[4] = {1,0,0,1};
-    //double data2[4] = {2,0,0,2};
-    //matrix a(row, col, data);
-    //matrix b(row, col, data2);
-    //matrix c = a+b; 
+    int row{2};
+    int col{2};
+    double data[4] = {1,2,3,4};
+    double data2[4] = {2,0,0,2};
+    matrix a(row, col, data);
+    matrix b(row, col, data2);
+    matrix c = a+b;
+    matrix d = a-b;
+    matrix e = a*b;
 
-    std::string input = "3,1,{1,0,0,1,1,0}"; // the format is: row, column {data}
+
+    double data3[9] = {1,2,3,4,5,6,7,8,9};
+    double data4[16] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+
+    matrix f{3,3,data3};
+    matrix g{4,4,data4};
+
+    double det_a{a.find_determinant()};
+    double det_b{f.find_determinant()};
+    double det_c{g.find_determinant()};
+
+
+    // printing all the matrices
+    std::cout << "matrix A: " << a << std::endl;
+    std::cout << "matrix B: " << b << std::endl;
+    std::cout << "matrix C: " << c << std::endl;
+    std::cout << "matric D: " << d << std::endl;
+    std::cout << "matrix E: " << e << std::endl;
+    std::cout << "Det A1 " << det_a << std::endl;
+    std::cout << "Det A2 " << det_b << std::endl;
+    std::cout << "Det A3 " << det_c << std::endl; 
+
+
+    //std::string input = "3,1,{1,0,0,1,1,0}"; // the format is: row, column {data}
     // the maximum size is 9x9.
     //std::cout << "potato";
 
-    matrix a;
-    std::cin >> a;
+    //matrix a;
+    //std::cin >> a;
 
 
     return 0;
