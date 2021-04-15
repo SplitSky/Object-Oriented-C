@@ -36,7 +36,7 @@ class matrix {
                 return matrix[0]*matrix[3] - matrix[1]*matrix[2];
             } else {
                 double determinant{0};
-                for (int j{0}; j<row; j++) {
+                for (int j{1}; j<=row; j++) {
                     determinant += pow(-1, 1+j) * matrix[j] * calc_det(row-1, splice_matrix(1,j,matrix));
                 }
                 return determinant;
@@ -55,6 +55,10 @@ class matrix {
                     }
                 }
             }
+            std::cout << "Printing the spliced matrix" << std::endl;
+            for (int i{0}; i< new_matrix.size(); i++) {
+                std::cout << "index: " << i << " Entry: " << new_matrix[i] << std::endl;
+            }
             return new_matrix;
         }
 
@@ -71,8 +75,9 @@ class matrix {
         // destructor
         ~matrix(){
             std::cout<<"bye"<<std::endl;
-            //delete[] data;
-        }
+            // add the deletion of the dynamical data.
+       }
+
         int get_row(){return this->row;}
         int get_col(){return this->col;}
 
@@ -84,11 +89,15 @@ class matrix {
             if ((this->row == numbers.row) && (this->col == numbers.col)) {
                 std::vector<double> data_added;
                 for (int i{0}; i<this->row*this->col ;i++) {
+                    std::cout << "The adding: " <<this->data[i] + numbers.data[i] << std::endl;
                     data_added.push_back(this->data[i] + numbers.data[i]);
                 }
                 double* data_assigned = new double[this->row*this->col];
                 std::copy(data_added.begin(), data_added.end(), data_assigned);
                 matrix temp(this->row, this->col, data_assigned);
+                
+                delete[] data_assigned;
+
                 return temp;
             } else {
                 matrix temp;
@@ -123,11 +132,12 @@ class matrix {
                 double sum;
                 double *data_multiplied = new double[this->row*numbers.col];
 
-                for (int j{0}; j<numbers.col;j++) {
-                    for (int i{0}; i < this->row; i++) {
+                for (int j{1}; j<=numbers.col;j++) {
+                    for (int i{1}; i <= this->row; i++) {
                         sum = 0;
-                        for (int k{0};k < this->col; k++) {
+                        for (int k{1};k <= this->col; k++) {
                             sum += this->data[(k-1)+(i-1)*this->col] * numbers.data[(j-1)+(k-1)*numbers.col];
+                            std::cout << "i=" << i << " j=" << j << " k=" << k << std::endl;
                         }
                         data_multiplied[(j-1)+this->row*(i-1)] = sum; // adds the entry to the result array
                     }
@@ -154,6 +164,10 @@ class matrix {
                 temp_string += "], ";
             }
             temp_string = temp_string.substr(0,temp_string.size()-2);
+
+            // remove later
+            std::cout << "the row x col: " << this->row << " x " << this->col << std::endl;
+
         return temp_string;
         }
 
@@ -222,7 +236,7 @@ int main() {
     int row{2};
     int col{2};
     double data[4] = {1,2,3,4};
-    double data2[4] = {2,0,0,2};
+    double data2[4] = {2,3,4,5};
     matrix a(row, col, data);
     matrix b(row, col, data2);
     matrix c = a+b;
@@ -247,9 +261,9 @@ int main() {
     std::cout << "matrix C: " << c << std::endl;
     std::cout << "matric D: " << d << std::endl;
     std::cout << "matrix E: " << e << std::endl;
-    std::cout << "Det A1 " << det_a << std::endl;
-    std::cout << "Det A2 " << det_b << std::endl;
-    std::cout << "Det A3 " << det_c << std::endl; 
+    std::cout << "Det A " << det_a << std::endl;
+    std::cout << "Det 3x3 " << det_b << std::endl;
+    std::cout << "Det 4x4 " << det_c << std::endl; 
 
 
     //std::string input = "3,1,{1,0,0,1,1,0}"; // the format is: row, column {data}
