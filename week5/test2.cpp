@@ -11,18 +11,9 @@
 #include<array>
 #include<iterator>
 #include<cstring>
-// Things to do
-// The class:
-// 1. Contain no. of rows, no. of columns and a pointer to the matrix data (type double)
-// 2. Constructor using dynamic memory allocation
-// 3. Store data in a one dimensional array. For a matrix by m x n. The location is given by (j-1) + (i-1)*n
-// 4. the destructor should delete dynamically allocated memory
-// 5. Assignment operator and copy constructor functions would perform deep copies of data
-// 6. Recursive calculation of a determinant:
-// 7. 
 
 class matrix {
-    friend std::ostream& operator<<(std::ostream &os, matrix &numbers);
+    friend std::ostream& operator<<(std::ostream &os, const matrix &numbers);
     friend std::ifstream& operator>>(std::ifstream &os, matrix &numbers);
     
     private:
@@ -33,18 +24,18 @@ class matrix {
         double calc_det(int row, std::vector<double> matrix) {
             // takes in array, mxn
             if (row == 2) { // col must also be 2 because its a square
-                return matrix[0]*matrix[3] - matrix[1]*matrix[2]; // base case
+                return matrix[0]*matrix[3] - matrix[1]*matrix[2]; // returns the base case of 2x2 determinant
             } else {
                 double determinant{0};
                 for (int j{1}; j<=row; j++) {
-                    determinant += pow(-1, 1+j) * matrix[j-1] * calc_det(row-1, splice_matrix(1,j,matrix));
+                    determinant += pow(-1, 1+j) * matrix[j-1] * calc_det(row-1, splice_matrix(1,j,matrix)); // recursive calculation of minors
                 }
                 return determinant;
             }
         }
 
         std::vector<double> splice_matrix(int i_pivot, int j_pivot, std::vector<double> matrix) {
-            // no need to invlude row and column as it always returns a matrix one smaller in each dimension
+            // this function slices the matrix into a smaller one
             std::vector<double> new_matrix = {};
             int col = pow(matrix.size(), 0.5);
             for (int i{1}; i<=col; i++) {
@@ -54,6 +45,7 @@ class matrix {
                     }
                 }
             }
+
             return new_matrix;
         }
 
@@ -109,9 +101,6 @@ class matrix {
                 double* data_assigned = new double[this->row*this->col];
                 std::copy(data_added.begin(), data_added.end(), data_assigned);
                 matrix temp(this->row, this->col, data_assigned);
-                
-                delete[] data_assigned;
-
                 return temp;
             } else {
                 matrix temp;
@@ -120,9 +109,9 @@ class matrix {
             }
         }
 
+
+
         matrix operator*(const matrix &numbers) const {
-            // this = a
-            // numbers = b
             if (this->row == numbers.col) {
                 double sum;
                 double *data_multiplied = new double[this->row*numbers.col];
@@ -132,6 +121,7 @@ class matrix {
                         sum = 0;
                         for (int k{1};k <= this->col; k++) {
                             sum += this->data[(k-1)+(i-1)*this->col] * numbers.data[(j-1)+(k-1)*numbers.col];
+                            std::cout << "i=" << i << " j=" << j << " k=" << k << std::endl;
                         }
                         data_multiplied[(j-1)+this->row*(i-1)] = sum; // adds the entry to the result array
                     }
@@ -165,61 +155,33 @@ class matrix {
         double find_determinant() {
             std::vector<double> temp_vector;
             temp_vector.assign(this->data, this->data+(this->row*this->col));// assigns an array to a vector
+
+            std::cout << "Printing the initial matrix" << std::endl;
+            std::cout << this->show_data() << std::endl;
             return this->calc_det(this->row, temp_vector); // use private function as a helper
         }
-        
-        void slice_matrix2(int i_pivot, int j_pivot) {
-            std::vector<double> new_data(std::begin(this->data), std::end(this->data)); // convert data in vector
-            new_data = this->splice_matrix(i_pivot, j_pivot, new_data);
-            //double* new_data_redeclared = new double[new_data.size()];
-            std::copy(new_data.begin(), new_data.end(), this->data); 
-            // copies the array into a memory location that doesn't disappear when it goes out of scope.
-            // convert a vector into double array
-            //numbers.set_data(&new_data[0]); // make sure this actually holds the data
-            return;
-        }
+
+
 };
 
-std::ostream& operator<<(std::ostream& os, matrix &numbers) {
+std::ostream& operator<<(std::ostream& os, const matrix &numbers) {
     os << "Printing the matrix:" << std::endl;
-    std::string temp[numbers.get_row()];
-    std::string temp_string;
-    for (int i{1}; i <= numbers.get_row(); i++) {
-        temp_string += "[";
-        for (int j{1}; j <= numbers.get_col(); j++) {
-            temp_string += " ";
-            temp_string += std::to_string(numbers.data[(j-1)+numbers.get_col()*(i-1)]) + ", ";
-        }
-        temp_string = temp_string.substr(0,temp_string.size()-2);
-        temp_string += "]";
-        os << temp_string << std::endl;
-        temp_string = "";
-    }
-    //temp_string = temp_string.substr(0,temp_string.size()-2);
-    //os << numbers.show_data() << std::endl;
+    os << numbers.show_data() << std::endl;
     return os;
 }
 
 std::istream& operator>>(std::istream& os, matrix &numbers) {
-    //std::string input = "2,2,{1,0,0,1}";
-    std::cout << "Enter the number of rows: " << std::endl;
     std::string input;
-    os >> input; // gets the input
-    numbers.set_row(std::stoi(input));
-    
-    input = "";
-    std::cout << "Enter the number of columns: " << std::endl;
     os >> input;
-    numbers.set_col(std::stoi(input));
-    
-    std::cout << "Enter the matrix in form: {a,b...}: " << std::endl;
-    input = "";
-    os >> input;
+
+    numbers.set_row(int(input[0])); // may be ASCII
+    std::cout << "The value may be ASCII: " << numbers.get_row() << std::endl;
+    numbers.set_col(int(input[2]));
     std::vector<double> data;
     double temp_number;
     std::string temp_string;
-    int i{1};
-    std::cout << "the input: " << input << std::endl; 
+    int i{5};
+    
 
     bool number_start;
     while (i != input.length()) {
@@ -227,13 +189,13 @@ std::istream& operator>>(std::istream& os, matrix &numbers) {
         temp_string = "";
         while (number_start) {
             if (input[i]==',') {
-                temp_number = std::stod(temp_string);
+                temp_number = stod(temp_string);
                 data.push_back(temp_number);
                 i++;
                 break;
-            } else if (input[i] =='}') {
+            } else if (input[i] ==']') {
                 number_start=false;
-                temp_number = stold(temp_string);
+                temp_number = stod(temp_string);
                 data.push_back(temp_number);
             } else {
                 temp_string += input[i];
@@ -247,57 +209,50 @@ std::istream& operator>>(std::istream& os, matrix &numbers) {
     // copies the array into a memory location that doesn't disappear when it goes out of scope.
     
     // convert a vector into double array
-    numbers.set_data(&new_data[0]); // assigns the data onto the matrix
+    numbers.set_data(&new_data[0]); // make sure this actually holds the data
     return os;
 }
 
 
 int main() {
+    std::cout.precision(3);
+
     int row{2};
     int col{2};
     double data[4] = {1,2,3,4};
     double data2[4] = {2,3,4,5};
-    matrix matrix1(row, col, data);
-    matrix matrix2(row, col, data2);
-    matrix matrix3 = matrix1+matrix2;
-    matrix matrix4 = matrix1-matrix2;
-    matrix matrix5 = matrix1*matrix2;
-    
-    double data3[9] = {1,8,7,1,5,3,1,8,4}; // the determinant is 9
-    double data4[36] = {1,2,5,4,8,15,4,5,2,6,4,2,3,8,7,4,5,6,2,1,5,5,5,5,4,8,8,7,5,4,2,1,5,6,3,4}; // determinant is 1464
-    matrix matrix6{3,3,data3};
-    matrix matrix7{6,6,data4};
+    matrix a(row, col, data);
+    matrix b(row, col, data2);
 
-    std::cout << "Attempting to multiply the matrices with incorrect sizes" << std::endl;
-    matrix matrix8 = matrix6*matrix7;
+    //double data3[9] = {1,8,7,1,5,3,1,8,4};
+    //double data4[16] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+    double data5[36] = {14,7,6,9,23,6,7,9,2,4,8,9,4,5,2,4,6,2,2,2,2,4,5,6,78,8,9,9,65,4,2,4,5,6,2,3};
+    matrix f{6,6,data5};
+    //matrix g{4,4,data4};
 
-    double det_a{matrix1.find_determinant()};
-    double det_b{matrix6.find_determinant()};
-    double det_c{matrix7.find_determinant()};
+    //double det_a{a.find_determinant()};
+    double det_b{f.find_determinant()};
+    //double det_c{g.find_determinant()};
 
-    matrix matrix9;
-    std::cin >> matrix9; // the input testing
 
-    //printing all the matrices
-    std::cout << "matrix A: " << matrix1 << std::endl;
-    std::cout << "matrix B: " << matrix2 << std::endl;
-    std::cout << "matrix C=A+B: " << matrix3 << std::endl;
-    std::cout << "matric D=A-B: " << matrix4 << std::endl;
-    std::cout << "matrix E=A*B: " << matrix5 << std::endl;
-    std::cout << "3x3 matrix: " << matrix6 << std::endl;
-    std::cout << "6x6 matrix: " << matrix7 << std::endl;
-    std::cout << "the input matrix: " << matrix9 << std::endl;
-    std::cout << "Det 2x2: " << det_a << std::endl;
-    std::cout << "Det 3x3: " << det_b << std::endl;
-    std::cout << "Det 4x4: " << det_c << std::endl; 
+    // printing all the matrices
+    //std::cout << "matrix A: " << a << std::endl;
+    //std::cout << "matrix B: " << b << std::endl;
+    //std::cout << "matrix C: " << c << std::endl;
+    //std::cout << "matric D: " << d << std::endl;
+    //std::cout << "matrix E: " << e << std::endl;
+    //std::cout << "Det A " << det_a << std::endl;
+    std::cout << "Det 6x6 " << det_b << std::endl;
+    //std::cout << "Det 4x4 " << det_c << std::endl; 
 
-    // the demonstration of the "member function that returns a matrix with ith and jth row deleted"
-    // is a part of the determinant calculation
-    // This function is modified and repeated under a name slice_matrix2.
-    // Operation is demonstrated below
-    matrix6.slice_matrix2(1,1);
 
-    std::cout << "Printing the sliced matrix: "<< matrix6 << std::endl;
+    //std::string input = "3,1,{1,0,0,1,1,0}"; // the format is: row, column {data}
+    // the maximum size is 9x9.
+    //std::cout << "potato";
+
+    //matrix a;
+    //std::cin >> a;
+
 
     return 0;
 }
