@@ -59,7 +59,11 @@ class matrix {
 
     public:
         // constructor default
-        matrix() = default;
+        matrix() {
+            this->data = new double[0];
+            this->row = 0;
+            this->col = 0;
+        }
         // parameter constructor
         matrix(int row, int col, double data_in[]): row{row}, col{col} {
             this->data = new double[row*col];
@@ -69,8 +73,8 @@ class matrix {
         }
         // destructor
         ~matrix(){
-            std::cout<<"bye"<<std::endl;
-            // add the deletion of the dynamical data.
+            std::cout << "ultimate gamer move" << std::endl;
+            delete[] data;
        }
 
         int get_row(){return this->row;}
@@ -86,11 +90,12 @@ class matrix {
                 for (int i{0}; i<this->row*this->col ;i++) {
                     data_added.push_back(this->data[i] + numbers.data[i]);
                 }
+
                 double* data_assigned = new double[this->row*this->col];
                 std::copy(data_added.begin(), data_added.end(), data_assigned);
                 matrix temp(this->row, this->col, data_assigned);
                 
-                delete[] data_assigned;
+                //delete[] data_assigned;
 
                 return temp;
             } else {
@@ -121,8 +126,6 @@ class matrix {
         }
 
         matrix operator*(const matrix &numbers) const {
-            // this = a
-            // numbers = b
             if (this->row == numbers.col) {
                 double sum;
                 double *data_multiplied = new double[this->row*numbers.col];
@@ -143,6 +146,23 @@ class matrix {
                 std::cout << "The dimensions don't match" << std::endl;
                 return temp;
             }
+        }
+
+        matrix operator=(matrix &numbers) {
+            if (&numbers == this) {return *this;} // no self assignment
+            
+            int row_2 = row;int col_2 = col;
+            delete[] data; 
+            data = nullptr;
+            col = 0;row = 0;
+            col = numbers.col;
+            row = numbers.row;
+            if (row*col>0) {
+                data = new double[row*col];
+                for (size_t i{}; i<col*row; i++) {data[i]=numbers.data[i];}
+            }
+        
+            return *this;
         }
 
         std::string show_data() const {
@@ -169,16 +189,25 @@ class matrix {
         }
         
         void slice_matrix2(int i_pivot, int j_pivot) {
-            std::vector<double> new_data(std::begin(this->data), std::end(this->data)); // convert data in vector
-            new_data = this->splice_matrix(i_pivot, j_pivot, new_data);
-            //double* new_data_redeclared = new double[new_data.size()];
-            std::copy(new_data.begin(), new_data.end(), this->data); 
+            std::vector<double> new_data;
+            for (size_t i{0}; i<this->row*this->col; i++) {
+                new_data.push_back(this->data[i]);
+            }
+            
+            this->row = this->row - 1;
+            this->col = this->col - 1;
+            delete[] this->data;
+            this->data = new double[this->row * this->col];
+            // purges and resets the data variables
+
+            new_data = this->splice_matrix(i_pivot, j_pivot, new_data); // uses the helper function to splice the vector
+            std::copy(new_data.begin(), new_data.end(), this->data);// copies the data into the pointer location
             // copies the array into a memory location that doesn't disappear when it goes out of scope.
-            // convert a vector into double array
-            //numbers.set_data(&new_data[0]); // make sure this actually holds the data
             return;
         }
 };
+
+
 
 std::ostream& operator<<(std::ostream& os, matrix &numbers) {
     os << "Printing the matrix:" << std::endl;
@@ -296,7 +325,7 @@ int main() {
     // This function is modified and repeated under a name slice_matrix2.
     // Operation is demonstrated below
     matrix6.slice_matrix2(1,1);
-
+    std::cout << "Slice the 3x3 matrix by removing 1st column and 1st row." << std::endl;
     std::cout << "Printing the sliced matrix: "<< matrix6 << std::endl;
 
     return 0;
