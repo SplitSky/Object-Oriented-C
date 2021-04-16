@@ -75,7 +75,8 @@ class matrix {
         ~matrix(){
             for (size_t i{0}; i< row*col ; i++) {std::cout << "The data: " << *(this->data+i) << std::endl;}
             //this->data = nullptr;
-            //this->data = nullptr;
+            this->data = nullptr;
+            delete[] this->data;
         }
 
         int get_row(){return this->row;}
