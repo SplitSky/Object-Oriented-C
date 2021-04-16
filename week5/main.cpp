@@ -320,29 +320,29 @@ int main() {
     matrix matrix2(row, col, data2);
     matrix matrix3 = matrix1+matrix2;
 
-    matrix matrix4 = matrix1-matrix2;
-    matrix matrix5 = matrix1*matrix2;
-    double data3[9] = {1,8,7,1,5,3,1,8,4}; // the determinant is 9
-    double data4[36] = {1,2,5,4,8,15,4,5,2,6,4,2,3,8,7,4,5,6,2,1,5,5,5,5,4,8,8,7,5,4,2,1,5,6,3,4}; // determinant is 1464
-    matrix matrix6{3,3,data3};
-    matrix matrix7{6,6,data4};
+    //matrix matrix4 = matrix1-matrix2;
+    //matrix matrix5 = matrix1*matrix2;
+    //double data3[9] = {1,8,7,1,5,3,1,8,4}; // the determinant is 9
+    //double data4[36] = {1,2,5,4,8,15,4,5,2,6,4,2,3,8,7,4,5,6,2,1,5,5,5,5,4,8,8,7,5,4,2,1,5,6,3,4}; // determinant is 1464
+    //matrix matrix6{3,3,data3};
+    //matrix matrix7{6,6,data4};
 
-    std::cout << "Attempting to multiply the matrices with incorrect sizes" << std::endl;
-    matrix matrix8 = matrix6*matrix7;
+    //std::cout << "Attempting to multiply the matrices with incorrect sizes" << std::endl;
+    //matrix matrix8 = matrix6*matrix7;
 
-    double det_a{matrix1.find_determinant()};
-    double det_b{matrix6.find_determinant()};
-    double det_c{matrix7.find_determinant()};
+    //double det_a{matrix1.find_determinant()};
+    //double det_b{matrix6.find_determinant()};
+    //double det_c{matrix7.find_determinant()};
 
-    matrix matrix9;
-    std::cin >> matrix9; // the input testing
+    //matrix matrix9;
+    //std::cin >> matrix9; // the input testing
 
     //printing all the matrices
     std::cout << "matrix A: " << matrix1 << std::endl;
     std::cout << "matrix B: " << matrix2 << std::endl;
     std::cout << "matrix C=A+B: " << matrix3 << std::endl;
     
-    matrix1 = matrix2; // modifies the original matrix
+    //matrix1 = matrix2; // modifies the original matrix
     //std::cout << "matrix C after A was overwritten with B: " << matrix3;
     //std::cout << "matrix A: " <<matrix1 << std::endl;
     //std::cout << "matrix B: " << matrix2 << std::endl;
