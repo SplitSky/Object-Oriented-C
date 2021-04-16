@@ -60,7 +60,7 @@ class matrix {
     public:
         // constructor default
         matrix() {
-            this->data = new double[0];
+            this->data = nullptr;
             this->row = 0;
             this->col = 0;
         }
@@ -73,30 +73,43 @@ class matrix {
         }
         // destructor
         ~matrix(){
-            std::cout << "ultimate gamer move" << std::endl;
-            delete[] data;
-       }
+            for (size_t i{0}; i< row*col ; i++) {std::cout << "The data: " << *(this->data+i) << std::endl;}
+            //this->data = nullptr;
+            //this->data = nullptr;
+        }
 
         int get_row(){return this->row;}
         int get_col(){return this->col;}
 
         void set_row(int row){this->row=row;}
         void set_col(int col){this->col=col;}
-        void set_data(double* data){this->data=data;}
+        void set_data(double* data_2, size_t size){
+            this->data = new double[size];
+            for (size_t i{0}; i< size; i++) {
+                this->data[i] = data_2[i];
+                // copies data from one pointer location to the other
+            }
+            return;        
+        }
 
-        matrix operator+(const matrix &numbers) const {
+        matrix operator+(matrix &numbers) const {
             if ((this->row == numbers.row) && (this->col == numbers.col)) {
+                matrix temp; // defines object
+
                 std::vector<double> data_added;
                 for (int i{0}; i<this->row*this->col ;i++) {
                     data_added.push_back(this->data[i] + numbers.data[i]);
                 }
 
+                
                 double* data_assigned = new double[this->row*this->col];
                 std::copy(data_added.begin(), data_added.end(), data_assigned);
-                matrix temp(this->row, this->col, data_assigned);
-                
+                //matrix temp(this->row, this->col, data_assigned);
                 //delete[] data_assigned;
-
+                temp.set_col(numbers.get_col());
+                temp.set_row(numbers.get_row());
+                temp.set_data(data_assigned, data_added.size());
+                delete[] data_assigned;
                 return temp;
             } else {
                 matrix temp;
@@ -105,18 +118,24 @@ class matrix {
             }
         }
 
-        matrix operator-(const matrix &numbers) const {
+        matrix operator-(matrix &numbers) const {
             if ((this->row == numbers.row) && (this->col == numbers.col)) {
+                matrix temp; // defines object
+
                 std::vector<double> data_added;
                 for (int i{0}; i<this->row*this->col ;i++) {
                     data_added.push_back(this->data[i] - numbers.data[i]);
                 }
+
+                
                 double* data_assigned = new double[this->row*this->col];
                 std::copy(data_added.begin(), data_added.end(), data_assigned);
-                matrix temp(this->row, this->col, data_assigned);
-                
+                //matrix temp(this->row, this->col, data_assigned);
+                //delete[] data_assigned;
+                temp.set_col(numbers.get_col());
+                temp.set_row(numbers.get_row());
+                temp.set_data(data_assigned, data_added.size());
                 delete[] data_assigned;
-
                 return temp;
             } else {
                 matrix temp;
@@ -125,10 +144,11 @@ class matrix {
             }
         }
 
-        matrix operator*(const matrix &numbers) const {
+        matrix operator*(matrix &numbers) {
             if (this->row == numbers.col) {
-                double sum;
-                double *data_multiplied = new double[this->row*numbers.col];
+                double sum{0};
+                std::vector<double> data_multiplied;
+                //double *data_multiplied = new double[this->row*numbers.col];
 
                 for (int j{1}; j<=numbers.col;j++) {
                     for (int i{1}; i <= this->row; i++) {
@@ -139,8 +159,19 @@ class matrix {
                         data_multiplied[(j-1)+this->row*(i-1)] = sum; // adds the entry to the result array
                     }
                 }
-                matrix temp(this->row, this->col, data_multiplied);
+                //matrix temp(this->row, numbers->col, data_multiplied);
+
+                matrix temp;
+                double* data_assigned = new double[this->row*this->col];
+                std::copy(data_multiplied.begin(), data_multiplied.end(), data_assigned);
+                //matrix temp(this->row, this->col, data_assigned);
+                //delete[] data_assigned;
+                temp.set_col(numbers.get_col());
+                temp.set_row(this->get_row());
+                temp.set_data(data_assigned, data_multiplied.size());
+                delete[] data_assigned;
                 return temp;
+
             } else {
                 matrix temp;
                 std::cout << "The dimensions don't match" << std::endl;
@@ -161,7 +192,6 @@ class matrix {
                 data = new double[row*col];
                 for (size_t i{}; i<col*row; i++) {data[i]=numbers.data[i];}
             }
-        
             return *this;
         }
 
@@ -276,7 +306,7 @@ std::istream& operator>>(std::istream& os, matrix &numbers) {
     // copies the array into a memory location that doesn't disappear when it goes out of scope.
     
     // convert a vector into double array
-    numbers.set_data(&new_data[0]); // assigns the data onto the matrix
+    numbers.set_data(&new_data[0],data.size()); // assigns the data onto the matrix
     return os;
 }
 
@@ -289,9 +319,9 @@ int main() {
     matrix matrix1(row, col, data);
     matrix matrix2(row, col, data2);
     matrix matrix3 = matrix1+matrix2;
+
     matrix matrix4 = matrix1-matrix2;
     matrix matrix5 = matrix1*matrix2;
-    
     double data3[9] = {1,8,7,1,5,3,1,8,4}; // the determinant is 9
     double data4[36] = {1,2,5,4,8,15,4,5,2,6,4,2,3,8,7,4,5,6,2,1,5,5,5,5,4,8,8,7,5,4,2,1,5,6,3,4}; // determinant is 1464
     matrix matrix6{3,3,data3};
@@ -311,22 +341,36 @@ int main() {
     std::cout << "matrix A: " << matrix1 << std::endl;
     std::cout << "matrix B: " << matrix2 << std::endl;
     std::cout << "matrix C=A+B: " << matrix3 << std::endl;
-    std::cout << "matric D=A-B: " << matrix4 << std::endl;
-    std::cout << "matrix E=A*B: " << matrix5 << std::endl;
-    std::cout << "3x3 matrix: " << matrix6 << std::endl;
-    std::cout << "6x6 matrix: " << matrix7 << std::endl;
-    std::cout << "the input matrix: " << matrix9 << std::endl;
-    std::cout << "Det 2x2: " << det_a << std::endl;
-    std::cout << "Det 3x3: " << det_b << std::endl;
-    std::cout << "Det 4x4: " << det_c << std::endl; 
+    
+    matrix1 = matrix2; // modifies the original matrix
+    //std::cout << "matrix C after A was overwritten with B: " << matrix3;
+    //std::cout << "matrix A: " <<matrix1 << std::endl;
+    //std::cout << "matrix B: " << matrix2 << std::endl;
+
+    
+    //std::cout << "matric D=A-B: " << matrix4 << std::endl;
+    //std::cout << "matrix E=A*B: " << matrix5 << std::endl;
+    //std::cout << "3x3 matrix: " << matrix6 << std::endl;
+    //std::cout << "6x6 matrix: " << matrix7 << std::endl;
+    //std::cout << "the input matrix: " << matrix9 << std::endl;
+    //std::cout << "Det 2x2: " << det_a << std::endl;
+    //std::cout << "Det 3x3: " << det_b << std::endl;
+    //std::cout << "Det 4x4: " << det_c << std::endl; 
 
     // the demonstration of the "member function that returns a matrix with ith and jth row deleted"
     // is a part of the determinant calculation
     // This function is modified and repeated under a name slice_matrix2.
     // Operation is demonstrated below
-    matrix6.slice_matrix2(1,1);
-    std::cout << "Slice the 3x3 matrix by removing 1st column and 1st row." << std::endl;
-    std::cout << "Printing the sliced matrix: "<< matrix6 << std::endl;
+    //matrix6.slice_matrix2(1,1);
+    //std::cout << "Slice the 3x3 matrix by removing 1st column and 1st row." << std::endl;
+    //std::cout << "Printing the sliced matrix: "<< matrix6 << std::endl;
+
+    // showing memory assignment is correct
+    //matrix1 = matrix2;
+    //std::cout << "Matrix A overwritten by B: " << matrix1 << std::endl;
+    //std::cout << "Matrix B: " << matrix2 << std::endl;
+    //std::cout << "Matrix C is unchanged: " << matrix3 << std::endl;
+
 
     return 0;
 }
