@@ -11,20 +11,7 @@
 #include<cstring>
 #define _USE_MATH_DEFINES
 
-// things to do
-// 1. Abstract class used as an interface for all shapes
-// 2. Abstract derived class for a) 2D shapes b) 3D shapes
-// 3. Derived classes for at least 4 2D shapes (rectangle, square ellipse, circle)
-// 4. Derived classes for at least 4 3D shapes (cuboid, cube, ellipsoid, sphere)
-// 5. Additional ingeritance for specialisation ("is a")
-// 6. Constructors and virtual destructors
-// 7. Pure virtual fuctions to return area and volume (can be zero for 2D shapes)
-// Main must:
-// Implement an vector of at least 8 base class pointers, each pointing to a different shape
-// Output the area and volume for 3D shapes
-// Clean up by deleting objects and arrays when finished
-
-// abstract class
+/// abstract class
 class shape {
     // friend std::ostream& operator<<(std::ostream &os, shape &shape);
     // friend std::ifstream& operator>>(std::ifstream &os, shape &shape);
@@ -33,52 +20,61 @@ class shape {
         std::string name{"shape"};
     public:
         shape() = default;
-        shape(std::vector<double> init_dimensions, std::string init_name) : dimensions{init_dimensions}, name{init_name} {
-        }
+        shape(std::vector<double> init_dimensions, std::string init_name) : dimensions{init_dimensions}, name{init_name} {}
         virtual ~shape() {}
 
-        virtual double calc_area() {
-            return dimensions[0]*dimensions[1];
-        }
-
-        virtual double calc_volume() {
-            if (this->dimensions.size() < 2) {
-                // for 2D shapes return 0
-                return 0;
-            } else {
-                double volume{1};
-                for (size_t i{0}; i<3; i++) {volume *= this->dimensions[i];}
-                return volume;
-            }
-        }
         std::string show_name() {
             return this->name;
         }
+        void set_name(std::string name) {
+            this->name = name;
+        }
+
+        virtual double calc_area() {return 0;};
+        virtual double calc_volume() {return 0;}
 };
 
-class square: public shape {
+class shape_2D: public shape {
+    public:
+        shape_2D() :shape{} {};
+        shape_2D(std::vector<double> init_dimensions, std::string name) : shape{init_dimensions,name} {}
+        ~shape_2D() {}
+        virtual double calc_area() {
+            return dimensions[0]*dimensions[1];
+        }
+};
+
+class shape_3D: public shape_2D {
+    public:
+        shape_3D() : shape_2D{} {}
+        shape_3D(std::vector<double> init_dimensions, std::string name) : shape_2D{init_dimensions, name} {}
+        virtual double calc_volume() {
+                return dimensions[0]*dimensions[1]*dimensions[2];
+        }
+};
+
+class square: public shape_2D {
     // all works
     public:
-        square(): shape{} {}
-        square(std::vector<double> dimensions) : shape{dimensions, "square"} {}
+        square(): shape_2D{} {}
+        square(std::vector<double> dimensions) : shape_2D{dimensions, "square"} {}
         ~square() {}
         virtual double calc_area() {
             return pow(dimensions[0], 2);
         }
 };
 
-class rectangle: public shape {
+class rectangle: public shape_2D {
     public:
-        rectangle(): shape{} {}
-        rectangle(std::vector<double> dimensions) : shape{dimensions, "rectangle"} {}
+        rectangle(): shape_2D{} {}
+        rectangle(std::vector<double> dimensions) : shape_2D{dimensions, "rectangle"} {}
         virtual ~rectangle() {};
-        double calc_volume() {return 0;}
 };
 
-class cuboid: public rectangle {
+class cuboid: public shape_3D {
     public:
-        cuboid(): rectangle{} {}
-        cuboid(std::vector<double> dimensions) : rectangle{dimensions} {this->name = "cuboid";}
+        cuboid(): shape_3D{} {}
+        cuboid(std::vector<double> dimensions) : shape_3D{dimensions, "cuboid"} {}
         ~cuboid() {};
         virtual double calc_area() {
             double area{0};
@@ -87,38 +83,39 @@ class cuboid: public rectangle {
             area += 2*dimensions[0]*dimensions[2];
             return area;
         }
-        // use the default volume function for shape
+        // use the default volume function for shape_3D
 };
 
 
-class cube: public square {
+class cube: public shape_3D {
     public:
-        cube(): square{} {}
-        cube(std::vector<double> dimensions) : square{dimensions} {this->name = "cube";}
+        cube(): shape_3D{} {}
+        cube(std::vector<double> dimensions) : shape_3D{dimensions, "cube"} {}
         virtual double calc_area() {
-            return 6*square::calc_area();
+            return 6*pow(dimensions[0],2);
+
         }
 
         virtual double calc_volume() {
-            return square::calc_area()*dimensions[0];
+            return pow(dimensions[0],3);
         }
 
 };
 
-class circle: public shape {
+class circle: public shape_2D {
     public:
-        circle(): shape{} {}
-        circle(std::vector<double> dimensions) : shape{dimensions, "circle"} {}
+        circle(): shape_2D{} {}
+        circle(std::vector<double> dimensions) : shape_2D{dimensions, "circle"} {}
         ~circle() {}
         virtual double calc_area() {
             return  M_PI*pow(dimensions[0],2);
         }
 };
 
-class sphere: public shape {
+class sphere: public shape_3D {
     public:
-        sphere(): shape{} {}
-        sphere(std::vector<double> dimensions) : shape{dimensions, "sphere"} {}
+        sphere(): shape_3D{} {}
+        sphere(std::vector<double> dimensions) : shape_3D{dimensions, "sphere"} {}
         ~sphere() {}
         virtual double calc_area() {
             return M_PI*4.0*pow(dimensions[0],2);
@@ -129,24 +126,24 @@ class sphere: public shape {
         }
 };
 
-class ellipse: public shape {
+class ellipse: public shape_2D {
     public:
-        ellipse(): shape{} {}
-        ellipse(std::vector<double> dimensions): shape{dimensions, "ellipse"} {}
+        ellipse(): shape_2D{} {}
+        ellipse(std::vector<double> dimensions): shape_2D{dimensions, "ellipse"} {}
         ~ellipse() {}
         virtual double calc_area() {
-            return M_PI * shape::calc_area();
+            return M_PI * shape_2D::calc_area();
         }
 };
 
-class ellipsoid: public ellipse {
+class ellipsoid: public shape_3D {
     private:
         const double ellipsoid_constant{1.6075};
     public:
-        ellipsoid() : ellipse{} {}
-        ellipsoid(std::vector<double> dimensions): ellipse{dimensions} {this->name = "ellipsoid";}
+        ellipsoid() : shape_3D{} {}
+        ellipsoid(std::vector<double> dimensions): shape_3D{dimensions, "ellipsoid"} {}
         virtual double calc_volume() {
-            return 4.0 / 3.0 * M_PI * ellipse::calc_volume();
+            return 4.0 / 3.0 * M_PI * shape_3D::calc_volume();
         }
         ~ellipsoid() {};
         virtual double calc_area() {
@@ -164,10 +161,9 @@ class prism {
     public:
         prism() {}
         prism(shape* shape_pointer, double depth) : depth{depth}, shape_pointer{shape_pointer} {}
-
         ~prism() {};
 
-        double calc_volume() {
+        virtual double calc_volume() {
             return shape_pointer->calc_area()*depth;
         }
 };
