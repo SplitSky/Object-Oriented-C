@@ -10,9 +10,9 @@
 #include<array>
 #include<iterator>
 #include<cstring>
+#include "classes.h"
+
 #define _USE_MATH_DEFINES
-#include<graphics.h>
-#include<isotream.h>
 // abstract class
 class model {
     protected:
