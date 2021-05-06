@@ -71,9 +71,29 @@ class matrix {
         }
         // destructor
         ~matrix(){
-            this->data = nullptr;
+            if (data != nullptr) {
+                std::cout << "Destructor called for " << *data << std::endl;
+            } else {
+                std::cout << "destructor called for nullptr" << std::endl;
+            }
+            //this->data = nullptr;
             delete[] this->data;
         }
+
+        matrix(const matrix &numbers) : matrix{numbers.row, numbers.col, numbers.data} {
+            // copy constructor
+            // copying data by making deep copy
+            //this->set_data(numbers.data, row*col);
+            //row = numbers.row;
+            //col = numbers.col;
+            std::cout << "copy constructor is called - Deep copy for " << *numbers.data << std::endl;
+        }
+
+        matrix(matrix&& numbers) : data{ numbers.data } {
+            // Move constructor
+            numbers.data = nullptr;
+        }
+
 
         int get_row(){return this->row;}
         int get_col(){return this->col;}
@@ -305,60 +325,66 @@ int main() {
     int col{2};
     double data[4] = {1,2,3,4};
     double data2[4] = {2,3,4,5};
-    matrix matrix1(row, col, data);
-    matrix matrix2(row, col, data2);
-    matrix matrix3 = matrix1+matrix2;
-    matrix matrix4 = matrix1-matrix2;
-    matrix matrix5 = matrix1*matrix2;
-    double data3[9] = {1,8,7,1,5,3,1,8,4}; // the determinant is 9
-    double data4[36] = {1,2,5,4,8,15,4,5,2,6,4,2,3,8,7,4,5,6,2,1,5,5,5,5,4,8,8,7,5,4,2,1,5,6,3,4}; // determinant is 1464
-    matrix matrix6{3,3,data3};
-    matrix matrix7{6,6,data4};
+    matrix matrix1{row, col, data};
+    matrix matrix2{row, col, data2};
+    //matrix matrix3 = matrix1+matrix2;
+    //matrix matrix4 = matrix1-matrix2;
+    //matrix matrix5 = matrix1*matrix2;
+    //double data3[9] = {1,8,7,1,5,3,1,8,4}; // the determinant is 9
+    //double data4[36] = {1,2,5,4,8,15,4,5,2,6,4,2,3,8,7,4,5,6,2,1,5,5,5,5,4,8,8,7,5,4,2,1,5,6,3,4}; // determinant is 1464
+    //matrix matrix6{3,3,data3};
+    //matrix matrix7{6,6,data4};
 
+    std::vector<matrix> v;
+    v.push_back(matrix1);
+    v.push_back(matrix2);
 
     // 1. Prints all the matrices
-    std::cout << "Printing all matrices" << std::endl;
-    std::cout << "matric D=A-B: " << matrix4 << std::endl;
-    std::cout << "matrix E=A*B: " << matrix5 << std::endl;
-    std::cout << "3x3 matrix: " << matrix6 << std::endl;
-    std::cout << "6x6 matrix: " << matrix7 << std::endl;
+    //std::cout << "Printing all matrices" << std::endl;
+    std::cout << "Matrix A: " << matrix1 << std::endl;
+    std::cout << "Matrix B: " << matrix2 << std::endl;
+    //std::cout << "Matrix C=A+B: " << matrix3 << std::endl;
+    //std::cout << "matric D=A-B: " << matrix4 << std::endl;
+    //std::cout << "matrix E=A*B: " << matrix5 << std::endl;
+    //std::cout << "3x3 matrix: " << matrix6 << std::endl;
+    //std::cout << "6x6 matrix: " << matrix7 << std::endl;
 
 
-    // 2. Show incorrect dimensions attempt
-    std::cout << "Attempting to multiply the matrices with incorrect sizes" << std::endl;
-    matrix matrix8 = matrix6*matrix7;
+    //// 2. Show incorrect dimensions attempt
+    //std::cout << "Attempting to multiply the matrices with incorrect sizes" << std::endl;
+    //matrix matrix8 = matrix6*matrix7;
 
-    // 3. Calculate determinants
-    double det_a{matrix1.find_determinant()};
-    double det_b{matrix6.find_determinant()};
-    double det_c{matrix7.find_determinant()};
+    //// 3. Calculate determinants
+    //double det_a{matrix1.find_determinant()};
+    //double det_b{matrix6.find_determinant()};
+    //double det_c{matrix7.find_determinant()};
 
-    // 3.5 Printing determinants
-    std::cout << "Det of 2x2 Matrix A: " << det_a << std::endl;
-    std::cout << "Det 3x3: " << det_b << std::endl;
-    std::cout << "Det 4x4: " << det_c << std::endl; 
+    //// 3.5 Printing determinants
+    //std::cout << "Det of 2x2 Matrix A: " << det_a << std::endl;
+    //std::cout << "Det 3x3: " << det_b << std::endl;
+    //std::cout << "Det 4x4: " << det_c << std::endl; 
 
     // 4. Input testing
     //matrix matrix9;
     //std::cin >> matrix9; // the input testing
     //std::cout << "the input matrix: " << matrix9 << std::endl;
 
-    // 5. Modifying matrices and showing the results haven't changed.    
-    matrix1 = matrix2; // modifies the original matrix
-    std::cout << "matrix C after A was overwritten with B: " << matrix3;
-    std::cout << "matrix A: " <<matrix1 << std::endl;
-    std::cout << "matrix B: " << matrix2 << std::endl;
-    std::cout << "Deleting B" << std::endl;
-    matrix2.~matrix();
-    std::cout << "matrix A: " << matrix1 << std::endl;
+    //// 5. Modifying matrices and showing the results haven't changed.    
+    //matrix1 = matrix2; // modifies the original matrix
+    //std::cout << "matrix C after A was overwritten with B: " << matrix3;
+    //std::cout << "matrix A: " <<matrix1 << std::endl;
+    //std::cout << "matrix B: " << matrix2 << std::endl;
+    //std::cout << "Deleting B" << std::endl;
+    //matrix2.~matrix();
+    //std::cout << "matrix A: " << matrix1 << std::endl;
 
-    // 6. the demonstration of the "member function that returns a matrix with ith and jth row deleted"
+    //// 6. the demonstration of the "member function that returns a matrix with ith and jth row deleted"
     // is a part of the determinant calculation
     // This function is modified and repeated under a name slice_matrix2.
     // Operation is demonstrated below
-    matrix6.slice_matrix2(1,1);
-    std::cout << "Slice the 3x3 matrix by removing 1st column and 1st row." << std::endl;
-    std::cout << "Printing the sliced matrix: "<< matrix6 << std::endl;
+    //matrix6.slice_matrix2(1,1);
+    //std::cout << "Slice the 3x3 matrix by removing 1st column and 1st row." << std::endl;
+    //std::cout << "Printing the sliced matrix: "<< matrix6 << std::endl;
 
     return 0;
 }

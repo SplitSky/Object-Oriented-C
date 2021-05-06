@@ -7,3 +7,5 @@ there is a way to compile with debugging info
 -g should be put in the make file
 use make files you nonce
 put the -g flag before the file to display  code
+
+valgrind - checks for memory leaks - use it
