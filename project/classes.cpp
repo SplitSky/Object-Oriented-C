@@ -125,8 +125,6 @@ class knight : public piece {
                 }
             }
 
-
-
             temp_string = std::to_string(position[0] - 1) + std::to_string(position[1] + point_value);
             possible_moves.push_back(temp_string);
             temp_string = "";
@@ -169,6 +167,7 @@ class queen : public piece { // combine the two functions from above into one  -
 class king : public piece { // one in each direction
     protected:
         // protected variables
+        std::vector<std::string> possible_moves;
     public:
         king() : piece {} {
             name = "king";
@@ -176,6 +175,28 @@ class king : public piece { // one in each direction
         }
 
         void find_possible_moves() {
+            std::string temp_string;
+            // first move
+            int* x_moves;
+            x_moves = new int[8]{1,1,0,1,0,-1,-1,-1};
+            int* y_moves;
+            y_moves = new int[8]{0,1,1,-1,-1,-1,0,1};
+
+            for (size_t i{0}; i<8; i++) {
+                if ((0 <= position[0] + x_moves[i]) && (7 >= position[0] + x_moves[i])) { // check range
+                    if ((0 <= position[1] + y_moves[i]) && (7 >= position[1] + y_moves[i])) {
+                        // do something idk ......... finish the knight move
+                        // check if the 
+                    }
+                }
+            }
+
+            temp_string = std::to_string(position[0] - 1) + std::to_string(position[1] + point_value);
+            possible_moves.push_back(temp_string);
+            temp_string = "";
+        
+            delete x_moves;
+            delete y_moves;
 
         }
 };
@@ -213,5 +234,4 @@ class board {
             }
             return sum;
         }
-        
 };
