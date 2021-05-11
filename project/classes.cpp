@@ -4,15 +4,18 @@
 #include<map>
 //
 // copy and move constructors only used for the board class
-//
+
+int convert_index(int x, int y) {
+    return (x-1) + 8*(y-1);
+}
+
+
 class piece {
     protected:
         // protected variables
         int position[2]; // array of two numbers. First is letter second is number i.e. [1,1] is A1
         std::string name; // e.g. pawn
         int point_value; // the colour depends on the sign of the point value. black is positive
-        std::vector<int> possible_moves;
-
     public:
         piece() {
             position[0] = 1;
@@ -32,29 +35,71 @@ class pawn : public piece {
     protected:
         // protected variables
         bool not_moved{true};
+        std::vector<std::string> possible_moves;
+        bool ascend{false};
     public:
         pawn() :piece{} {
             name = "pawn";
             point_value = 1;
         };
-        pawn(int init_position, std::string init_name, bool init_colour) : piece{init_position,"pawn", init_colour} {}
+        pawn(int init_position, std::string init_name, bool init_colour) : piece{init_position,"pawn", init_colour} {if (init_colour) {point_value=1;}}
         virtual ~pawn() {};
 
         void find_possible_moves(int* board) {
             // cross reference the board with the current position
             possible_moves = {}; // reset the number of moves
-            if (board[(position[0] - 1) + (position[1] - 1)*8 ] == 0) {
-                // empty space for pawn
-                possible_moves 
-            }
+            std::string temp_string;
+            // the point value is the length of the move in the correct direction
+            // if -1 it is black but if it's +1 it's white
+            // start if
+            
+            // position[0] ranges from 0 - 7. +1 for the real value
 
-        }
-        
+            if ((position[1]+1 == 8) || (position[1]-1 == -1) ) {
+                
+                if (board[convert_index(position[0], position[1] + point_value)] == 0) {
+                    // the board place is empty
+                    temp_string = std::to_string(position[0]) + std::to_string(position[1] + point_value);
+                    possible_moves.push_back(temp_string);
+                    temp_string = "";
+                }
+
+                if ((not_moved == true) &&  (board[convert_index(position[0], position[1] + 2*point_value)] == 0)) {
+                    temp_string = std::to_string(position[0]) + std::to_string(position[1] + point_value);
+                    possible_moves.push_back(temp_string);
+                    temp_string = "";                   
+                }
+
+                // check the edge
+                if (position[0]+1 != 8) {
+                    if (board[convert_index(position[0] + 1, position[1] + point_value)] == 0) {
+                        // forward and to the right
+                        temp_string = std::to_string(position[0] + 1) + std::to_string(position[1] + point_value);
+                        possible_moves.push_back(temp_string);
+                        temp_string = "";
+                    }
+                } 
+
+                // check the other edge
+                if (position[0]-1 != -1) {
+                    if (board[convert_index(position[0] - 1, position[1] + point_value)]) {
+                       // forward to the left
+                       temp_string = std::to_string(position[0] - 1) + std::to_string(position[1] + point_value);
+                       possible_moves.push_back(temp_string);
+                       temp_string = "";
+                    }
+                }
+
+            }  else {
+                ascend = true; // can't move pawn. Only exchange for different piece.
+            }
+        } // end of the find_possible_moves
 };
 
 class knight : public piece {
     protected:
         // protected variables
+        std::vector<std::string> possible_moves;
     public:
         knight() :piece{} {
             name = "knight";
@@ -62,9 +107,36 @@ class knight : public piece {
         }
         knight(int init_position, std::string init_name, bool init_colour) : piece{init_position,"knight", init_colour} {}
         virtual ~knight() {};
+
+        void find_possible_moves(int* board) {
+            std::string temp_string;
+            // first move
+            int* x_moves;
+            x_moves = new int[8]{-2,-1,+2,-1,-2,+1,+2,+1};
+            int* y_moves;
+            y_moves = new int[8]{-1,-2,+1,+2,+1,-2,-1,+2};
+
+            for (size_t i{0}; i<8; i++) {
+                if ((0 <= position[0] + x_moves[i]) && (7 >= position[0] + x_moves[i])) { // check range
+                    if ((0 <= position[1] + y_moves[i]) && (7 >= position[1] + y_moves[i])) {
+                        // do something idk ......... finish the knight move
+
+                    }
+                }
+            }
+
+
+
+            temp_string = std::to_string(position[0] - 1) + std::to_string(position[1] + point_value);
+            possible_moves.push_back(temp_string);
+            temp_string = "";
+        
+            delete x_moves;
+            delete y_moves;
+        }
 };
 
-class bishop : public piece {
+class bishop : public piece { // get the find moves function outside of the class definition
     protected:
         // protected variables
     public:
@@ -74,7 +146,7 @@ class bishop : public piece {
         }
 };
 
-class rook : public piece {
+class rook : public piece { // get the find moves function outside of the class definition
     protected:
         // protected variables
     public:
@@ -84,7 +156,7 @@ class rook : public piece {
         }
 };
 
-class queen : public piece {
+class queen : public piece { // combine the two functions from above into one  -----
     protected:
         // protected variables
     public:
@@ -94,13 +166,17 @@ class queen : public piece {
         }
 };
 
-class king : public piece {
+class king : public piece { // one in each direction
     protected:
         // protected variables
     public:
         king() : piece {} {
             name = "king";
             point_value = 10;
+        }
+
+        void find_possible_moves() {
+
         }
 };
 
