@@ -6,19 +6,7 @@
 #include<fstream>
 #define WHITE_SQUARE 0xDB
 #define BLACK_SQUARE 0xFF
-#define BLACK_KING '\u2654'
-#define BLACK_QUEEN '\u2655'
-#define BLACK_ROOK '\u2656'
-#define BLACK_BISHOP '\u2657'
-#define BLACK_KNIGHT '\u2658'
-#define BLACK_PAWN '\u2659'
 
-#define WHITE_KING '\u265A'
-#define WHITE_QUEEN '\u265B'
-#define WHITE_ROOK '\u265C'
-#define WHITE_BISHOP '\u265D'
-#define WHITE_KNIGHT '\u265E'
-#define WHITE_PAWN '\u265F'
 //
 // copy and move constructors only used for the board class
 
@@ -464,56 +452,37 @@ class board {
         }
 
         void print_board() {
-            std::cout << "   A     B     C     D     E     F     G     H" << std::endl;
-                for (int iLine = 7; iLine >= 0; iLine--) {
-                    if ( iLine%2 == 0) {
+            std::cout << "     A    B    C    D    E    F    G    H  " << std::endl;
+            std::cout << "################################################" << std::endl;
+                for (size_t i{7}; i >= 0; i--) {
+                    if ( i%2 == 0) {
                     // Line starting with BLACK
-                        printLine(iLine, BLACK_SQUARE, WHITE_SQUARE);
+                        printLine(i, BLACK_SQUARE, WHITE_SQUARE);
                     } else {
                         // Line starting with WHITE
-                        printLine(iLine, WHITE_SQUARE, BLACK_SQUARE);
+                        printLine(i, WHITE_SQUARE, BLACK_SQUARE);
                     }
                 }
         }
 
-        void printLine(int y, int iColor1, int iColor2) {
-           int const CELL = 6;
+        void printLine(int y, int colour_1, int colour_2) {
+            // each line has 3 width and 3 high.
+            // print top layer
+            std::cout << "   ";
+            for (size_t i{1}; i<=8; i++) {
+                if (i%2 == 0) {
+                    // colour 1
+                    for (size_t j{0}; j<5; j++) {std::cout << colour_1;}
+                } else {
+                    // colour 2
+                    for (size_t j{0}; j<5; j++) {std::cout << colour_2;}
+                }
+            }
+            // print layer with pieces
 
-           // Since the width of the characters BLACK and WHITE is half of the height, 
-           // we need to use two characters in a row.
-           // So if we have CELL characters, we must have CELL/2 sublines
-           for (int subLine = 0; subLine < CELL/2; subLine++) {
-              // A sub-line is consisted of 8 cells, but we can group it
-              // in 4 iPairs of black&white
-              for (int iPair = 0; iPair < 4; iPair++) {
-                 // First cell of the pair
-                 for (int subColumn = 0; subColumn < CELL; subColumn++) {
-                    // The piece should be in the "middle" of the cell
-                    // For 3 sub-lines, in sub-line 1
-                    // For 6 sub-columns, sub-column 3
-                    if ( subLine == 1 && subColumn == 3) {
-                        std::cout << char(game.getPieceAtPosition(iLine, iPair*2) != 0x20 ? 
-                                     game.getPieceAtPosition(iLine, iPair*2) : iColor1);
-                    } else {
-                        std::cout << char(iColor1);
-                    }
-                 }
 
-                 // Second cell of the pair
-                 for (int subColumn = 0; subColumn < CELL; subColumn++) {
-                    // The piece should be in the "middle" of the cell
-                    // For 3 sub-lines, in sub-line 1
-                    // For 6 sub-columns, sub-column 3
-                    if ( subLine == 1 && subColumn == 3) {
-                       cout << char(game.getPieceAtPosition(iLine,iPair*2+1) != 0x20 ? 
-                                      game.getPieceAtPosition(iLine,iPair*2+1) : iColor2);
-                    }
-                    else  {
-                       cout << char(iColor2);
-                    }
-                 }
-              }
-           }
+
+            // print bottom layer
         }
 
 
