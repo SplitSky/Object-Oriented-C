@@ -6,6 +6,7 @@
 #include<fstream>
 #define WHITE_SQUARE 0xDB
 #define BLACK_SQUARE 0xFF
+#include<algorithm>
 
 //
 // copy and move constructors only used for the board class
@@ -15,6 +16,13 @@ int convert_index(int x, int y) {
 }
 
 // translate number to chess notation
+
+
+
+std::string capitalizeString(std::string word) {
+    transform(word.begin(), word.end(), word.begin(), [](unsigned char c){return std::toupper(c);});
+    return word;
+}
 
 class piece {
     protected:
@@ -36,6 +44,11 @@ class piece {
         std::string get_pos() {
             return std::to_string(this->position[0]) + "," + std::to_string(this->position[1]);
         }
+
+        void set_pos(int x, int y) {
+            position[0] = x;
+            position[1] = y;
+        }
 };
 
 class pawn : public piece {
@@ -49,7 +62,13 @@ class pawn : public piece {
             name = "pawn";
             point_value = 1;
         };
-        pawn(int init_position, std::string init_name, bool init_colour) : piece{init_position,"pawn", init_colour} {if (init_colour) {point_value=1;}}
+        pawn(int init_position, std::string init_name, bool init_colour) : piece{init_position,"pawn", init_colour} {
+            if (init_colour) {
+                point_value=1;
+            } else {
+                point_value=-1;
+            }
+        }
         virtual ~pawn() {};
 
         void find_possible_moves(int* board) {
@@ -112,7 +131,13 @@ class knight : public piece {
             name = "knight";
             point_value = 3;
         }
-        knight(int init_position, std::string init_name, bool init_colour) : piece{init_position,"knight", init_colour} {}
+        knight(int init_position, std::string init_name, bool init_colour) : piece{init_position,"knight", init_colour} {
+            if (init_colour) {
+                point_value = 3;
+            } else {
+                point_value = -3;
+            }
+        }
         virtual ~knight() {};
 
         void find_possible_moves(int* board) {
@@ -138,13 +163,12 @@ class knight : public piece {
                             temp_string = "";                           
                             // enemy piece on the square
                         }
+                    }
                 }
-            }
-
-
-        
             delete x_moves;
             delete y_moves;
+        
+            }
         }
 };
 
@@ -156,7 +180,14 @@ class bishop : public piece { // get the find moves function outside of the clas
     public:
         bishop() : piece{} {
             name = "bishop";
-            point_value = 3;
+            point_value = 4;
+        }
+        bishop(int init_position, std::string init_name, bool init_colour) : piece{init_position,"bishop", init_colour} {
+            if (init_colour) {
+                point_value = 4;
+            } else {
+                point_value = -4;
+            }
         }
 
         void find_possible_moves(int* board) {
@@ -180,8 +211,7 @@ class bishop : public piece { // get the find moves function outside of the clas
                         if (board[convert_index(position[0] + multiplier * x_moves[i], position[1] + multiplier * y_moves[i])]* point_value < 0) { // enemy piece
                             temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + y_moves[i]);
                             possible_moves.push_back(temp_string);
-                            temp_string = "";                            // append move and stop
-                            // stop
+                            temp_string = "";                             
                             keep_going = false;
                         } else {
                             // friendly piece
@@ -209,6 +239,13 @@ class rook : public piece { // get the find moves function outside of the class 
             point_value = 5;
         }
 
+        rook(int init_position, std::string init_name, bool init_colour) : piece{init_position,"rook", init_colour} {
+            if (init_colour) {
+                point_value = 5;
+            } else {
+                point_value = -5;
+            }
+        }
         void find_possible_moves(int* board) {
             std::string temp_string;
             int multiplier;
@@ -258,6 +295,15 @@ class queen : public piece { // combine the two functions from above into one  -
             name = "queen";
             point_value = 9;
         }
+
+        queen(int init_position, std::string init_name, bool init_colour) : piece{init_position, "queen", init_colour} {
+            if (init_colour) {
+                point_value = 9;
+            } else {
+                point_value = -9;
+            }
+        }
+
         void find_possible_moves(int* board) {
             std::string temp_string;
             int multiplier;
@@ -280,7 +326,7 @@ class queen : public piece { // combine the two functions from above into one  -
                         if (board[convert_index(position[0] + multiplier * x_moves[i], position[1] + multiplier * y_moves[i])]* point_value < 0) { // enemy piece
                             temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + y_moves[i]);
                             possible_moves.push_back(temp_string);
-                            temp_string = "";                            // append move and stop
+                            temp_string = "";                            
                             // stop
                             keep_going = false;
                         } else {
@@ -309,7 +355,15 @@ class king : public piece { // one in each direction
             point_value = 10;
         }
 
-               void find_possible_moves(int* board) {
+        king(int init_position, std::string init_name, bool init_colour) : piece{init_position, "king", init_colour} {
+            if (init_colour) {
+                point_value = 10;
+            } else {
+                point_value = -10;
+            }
+        }
+
+        void find_possible_moves(int* board) {
             std::string temp_string;
             int* x_moves;
             x_moves = new int[8]{0,+1,0,-1,-1,+1,+1,-1};
@@ -333,7 +387,8 @@ class king : public piece { // one in each direction
 
             delete x_moves;
             delete y_moves;
-        }};
+        }
+};
 
 class board {
     // copy and move operators
@@ -356,10 +411,9 @@ class board {
                 // load in the initial file
             } else {
                 // load in a different name
-                // file name validation
                 // read in the game file
             }
-        } /// bookmark
+        }
 
         int sum_board() {
             int sum{0};
@@ -405,9 +459,7 @@ class board {
             }
 
             // decode and create objects
-
-
-
+            
             return board;
         }
 
@@ -415,7 +467,7 @@ class board {
             // loop through all objects and list moves
             std::vector<std::string> moves;
 
-            for (size_t i; i<32; i++) {
+            for (size_t i{0}; i<32; i++) {
               
             }
         
@@ -463,6 +515,42 @@ class board {
                         printLine(i, WHITE_SQUARE, BLACK_SQUARE);
                     }
                 }
+            std::cout << "################################################" << std::endl;
+        }
+
+        std::string return_piece(int n, int colour) {
+            int temp_n = n;
+            if (temp_n < 0) {
+                temp_n = temp_n*-1;
+            }
+            std::string piece;
+            if (temp_n == 0) {
+                return std::to_string(colour);
+            } else {
+                if (temp_n == 1) {
+                    // pawn
+                    piece = "p";
+                } else if (temp_n == 3) {
+                    // knight
+                    piece = "n";
+                } else if (temp_n == 4) {
+                    // bishop
+                    piece = "b";
+                } else if (temp_n == 5) {
+                    // rook
+                    piece = "r";
+                } else if (temp_n == 10) {
+                    // king
+                    piece = "k";
+                } else if (temp_n == 9) {
+                    // queen
+                    piece = "q";
+                }
+            }
+            if (n < 0) {
+                return capitalizeString(piece);
+            }
+            return piece;
         }
 
         void printLine(int y, int colour_1, int colour_2) {
@@ -478,12 +566,36 @@ class board {
                     for (size_t j{0}; j<5; j++) {std::cout << colour_2;}
                 }
             }
+            std::cout << std::endl;
             // print layer with pieces
-
-
-
+            std::cout << " " << y << " ";
+            for (size_t i{1}; i<=8; i++) {
+                if (i%2 == 0) {
+                    // colour 1
+                    std::cout << colour_1 << colour_1;
+                    // check for piece
+                    std::cout <<  return_piece(board_rep[convert_index(i,y)],colour_1);
+                    std::cout << colour_1 << colour_1;
+                } else {
+                    // colour 2
+                    std::cout << colour_2 << colour_2;
+                    // check for piece
+                    std::cout << return_piece(board_rep[convert_index(i,y)], colour_2);
+                    std::cout << colour_2 << colour_2;
+                }
+            }
+            std::cout << std::endl;
             // print bottom layer
+            std::cout << "   ";
+            for (size_t i{1}; i<=8; i++) {
+                if (i%2 == 0) {
+                    // colour 1
+                    for (size_t j{0}; j<5; j++) {std::cout << colour_1;}
+                } else {
+                    // colour 2
+                    for (size_t j{0}; j<5; j++) {std::cout << colour_2;}
+                }
+            }
+            std::cout << std::endl;
         }
-
-
 };
