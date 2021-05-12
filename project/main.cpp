@@ -11,36 +11,10 @@
 #include<iterator>
 #include<cstring>
 #include "classes.h"
-
-#define _USE_MATH_DEFINES
+#define A '\u2654'
 // abstract class
-class model {
-    protected:
-        std::vector<double> position;
-        std::string name;
-        int weapon_skill;
-        int ballistic_skill;
-        int toughness;
-        int strength;
-        int current_wound;
-        int max_wound;
-    public:
-        model() = default;
-        model(std::vector<double> init_pos, std::string init_name) : position{init_pos}, name{init_name} {}
-        virtual ~model() {}
-
-        std::string show_name() {
-            return this->name;
-        }
-
-        void remove_wounds(int damage) {
-            current_wound -= damage;
-            std::cout << name << " took " << damage << " wounds!" << std::endl;
-        }
-};
-
 
 int main() {
-
+    std::cout <<  << std::endl;
     return 0;
 }
