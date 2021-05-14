@@ -30,6 +30,7 @@ class piece {
         int position[2]; // array of two numbers. First is letter second is number i.e. [1,1] is A1
         std::string name; // e.g. pawn
         int point_value; // the colour depends on the sign of the point value. black is positive
+        std::vector<std::string> possible_moves;
     public:
         bool removed{false};
         piece() {
@@ -49,13 +50,17 @@ class piece {
             position[0] = x;
             position[1] = y;
         }
+
+        void find_possible_moves(int* board) {
+            // placeholder
+        }
 };
 
 class pawn : public piece {
     protected:
         // protected variables
         bool not_moved{true};
-        std::vector<std::string> possible_moves;
+        //std::vector<std::string> possible_moves;
         bool ascend{false};
     public:
         pawn() :piece{} {
@@ -125,7 +130,7 @@ class pawn : public piece {
 class knight : public piece {
     protected:
         // protected variables
-        std::vector<std::string> possible_moves;
+        //std::vector<std::string> possible_moves;
     public:
         knight() :piece{} {
             name = "knight";
@@ -175,7 +180,7 @@ class knight : public piece {
 class bishop : public piece { // get the find moves function outside of the class definition
     protected:
         // protected variables
-        std::vector<std::string> possible_moves;
+        //std::vector<std::string> possible_moves;
 
     public:
         bishop() : piece{} {
@@ -232,7 +237,7 @@ class bishop : public piece { // get the find moves function outside of the clas
 class rook : public piece { // get the find moves function outside of the class definition
     protected:
         // protected variables
-        std::vector<std::string> possible_moves;
+        //std::vector<std::string> possible_moves;
     public:
         rook() : piece{} {
             name = "rook";
@@ -289,7 +294,7 @@ class rook : public piece { // get the find moves function outside of the class 
 class queen : public piece { // combine the two functions from above into one  -----
     protected:
         // protected variables
-        std::vector<std::string> possible_moves;
+        //std::vector<std::string> possible_moves;
     public:
         queen() : piece{} {
             name = "queen";
@@ -348,7 +353,7 @@ class queen : public piece { // combine the two functions from above into one  -
 class king : public piece { // one in each direction
     protected:
         // protected variables
-        std::vector<std::string> possible_moves;
+        //std::vector<std::string> possible_moves;
     public:
         king() : piece {} {
             name = "king";
@@ -598,4 +603,19 @@ class board {
             }
             std::cout << std::endl;
         }
+
+        void find_all_moves() {
+            for (size_t i{0}; i<32; i++) { // finds the possible moves of all pieces
+                pieces_array[i]->find_possible_moves(board_rep);
+            }
+        }
+
+        bool is_king_safe() {
+            bool safe{true};
+
+
+
+            return safe;
+        }
+
 };
