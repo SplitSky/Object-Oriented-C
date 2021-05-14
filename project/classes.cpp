@@ -8,6 +8,19 @@
 #define BLACK_SQUARE 0xFF
 #include<algorithm>
 
+#define BLACK_PAWN '♙'
+#define BLACK_KNIGHT '♘'
+#define BLACK_BISHOP '♗'
+#define BLACK_ROOK '♖'
+#define BLACK_QUEEN '♕'
+#define BLACK_KING '♖'
+#define WHITE_PAWN '♟'
+#define WHITE_KNIGHT '♞'
+#define WHITE_ROOK '♜'
+#define WHITE_BISHOP '♝'
+#define WHITE_QUEEN '♛'
+#define WHITE_KING '♚'
+
 //
 // copy and move constructors only used for the board class
 
@@ -16,12 +29,17 @@ int convert_index(int x, int y) {
 }
 
 // translate number to chess notation
-
-
-
 std::string capitalizeString(std::string word) {
     transform(word.begin(), word.end(), word.begin(), [](unsigned char c){return std::toupper(c);});
     return word;
+}
+ 
+std::string convert_chess_notation(std::string initial_pos) { // not tested
+    // initial position is a string of two numbers i.e. 11, 24
+    std::map<int, std::string> position_map = {{1,"A",},{2,"B",},{3,"C",},{4,"D",},{5,"E",},{6,"F",},{7,"G",},{8,"H",}};
+    std::string chess_notation;
+    chess_notation = position_map.find(int(initial_pos[0]))->second;
+    return chess_notation + initial_pos[1];
 }
 
 class piece {
@@ -51,8 +69,16 @@ class piece {
             position[1] = y;
         }
 
-        void find_possible_moves(int* board) {
-            // placeholder
+        virtual void find_possible_moves(int* board) {
+            possible_moves.push_back("00");
+        }
+
+        std::vector<std::string> list_moves() {
+            return possible_moves;
+        }
+
+        std::string get_name() {
+            return this->name;
         }
 };
 
@@ -144,7 +170,6 @@ class knight : public piece {
             }
         }
         virtual ~knight() {};
-
         void find_possible_moves(int* board) {
             std::string temp_string;
             // first move
@@ -172,7 +197,6 @@ class knight : public piece {
                 }
             delete x_moves;
             delete y_moves;
-        
             }
         }
 };
@@ -228,7 +252,6 @@ class bishop : public piece { // get the find moves function outside of the clas
                 } // end while
                 
             }
-
             delete x_moves;
             delete y_moves;
         }
@@ -267,7 +290,6 @@ class rook : public piece { // get the find moves function outside of the class 
                         temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + y_moves[i]);
                         possible_moves.push_back(temp_string);
                         temp_string = "";
-
                     } else {
                         if (board[convert_index(position[0] + multiplier * x_moves[i], position[1] + multiplier * y_moves[i])]* point_value < 0) { // enemy piece
                             temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + y_moves[i]);
@@ -454,7 +476,6 @@ class board {
                 std::cout << "No such file!" << std::endl;
             } else {
                 std::cout << "File present!" << std::endl;
-                
                 while (!my_file.eof()) {
                     line = "";
                     getline(my_file, line);
@@ -470,13 +491,26 @@ class board {
 
         std::vector<std::string> list_moves() {
             // loop through all objects and list moves
+            std::cout << "Listing possible moves: " << std::endl;
+            std::string temp_name;
             std::vector<std::string> moves;
-
+            std::vector<std::string> temp_moves;
             for (size_t i{0}; i<32; i++) {
-              
-            }
-        
+                // check if empty
+                if (pieces_array[i] != NULL) { // ******************** probably doesn't work
+                    pieces_array[i]->find_possible_moves(board_rep);
+                     
+                    std::cout << "moves for ";
+                    std::cout << pieces_array[i]->get_name();
+                    std::cout << " positioned at : " << pieces_array[i]->get_pos();
 
+
+                    temp_moves = pieces_array[i]->list_moves();
+                    for (size_t j{0}; j < temp_moves.size() ; j++) {
+                        moves.push_back(temp_moves[j]); // iterate over the individual moves
+                    }
+                }
+            }
             return moves;
         }
 
