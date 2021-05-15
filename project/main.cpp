@@ -33,6 +33,7 @@ int main() {
         // validation for input
         if (choice == 1) {
             // declare board object
+            board *Current_game = new board(true);
             // populate the board
             // Start game
             // Player 1 turn
@@ -40,6 +41,7 @@ int main() {
             // loop until game end
         } else if (choice == 2) {
             // declare the board object
+            board Current_game = board(true);
             // populate the board
             // Start game
             // Player 1 turn
@@ -47,6 +49,7 @@ int main() {
             // loop until game end
         } else if (choice == 3) {
             // declare the board object
+            board Current_game = board(false);
             // load the board
             // resume the game
             // note: check the point value of the last piece and resume the other colour

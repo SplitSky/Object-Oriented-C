@@ -8,21 +8,6 @@
 #define BLACK_SQUARE 0xFF
 #include<algorithm>
 
-#define BLACK_PAWN '♙'
-#define BLACK_KNIGHT '♘'
-#define BLACK_BISHOP '♗'
-#define BLACK_ROOK '♖'
-#define BLACK_QUEEN '♕'
-#define BLACK_KING '♖'
-#define WHITE_PAWN '♟'
-#define WHITE_KNIGHT '♞'
-#define WHITE_ROOK '♜'
-#define WHITE_BISHOP '♝'
-#define WHITE_QUEEN '♛'
-#define WHITE_KING '♚'
-
-//
-// copy and move constructors only used for the board class
 
 int convert_index(int x, int y) {
     return (x-1) + 8*(y-1);
@@ -436,9 +421,16 @@ class board {
         board(bool default_board) {
             if (default_board == true) {
                 // load in the initial file
+
             } else {
                 // load in a different name
                 // read in the game file
+            }
+        }
+        ~board() {
+            delete[] board_rep;
+            for (size_t i{0}; i<32; i++) {
+                delete pieces_array[i];
             }
         }
 
