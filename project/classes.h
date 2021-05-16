@@ -402,7 +402,7 @@ class board {
     // when a piece moves update the actual position and then update the integer array
     private:
         std::map<int, std::string> position_map = {{1,"A",},{2,"B",},{3,"C",},{4,"D",},{5,"E",},{6,"F",},{7,"G",},{8,"H",}};
-        int board_2[64] = {+5,+3,+4,+9,+10,+4,+3,+5,+1,+1,+1,+1,+1,+1,+1,+1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-5,-3,-4,-10,-9,-4,-3,-5};
+        int standard_game[64] = {+5,+3,+4,+9,+10,+4,+3,+5,+1,+1,+1,+1,+1,+1,+1,+1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-5,-3,-4,-10,-9,-4,-3,-5};
         piece *pieces_array[32];
         int *board_rep = new int[64]; // dynamically assign an integer array for board representation
     public:
@@ -410,7 +410,8 @@ class board {
         board(bool default_board) {
             if (default_board == true) {
                 // load in the initial file
-                load_test();
+                load_test(standard_game);
+                print_data();
                 save_game();
                 std::cout << "The functions finished" << std::endl;
 
@@ -511,11 +512,20 @@ class board {
             return board;
         }
 
+        void print_data() {
+            for (size_t i{0}; i<64; i++) {
+                std::cout << "the variable entry" << board_rep[i] << std::endl;
+            }  
+        }
 
-        void load_test() {
+
+        void load_test(int *board_2) {
             //int *board = standard_game;
             //int board = new int[64];
-            
+            //
+            //
+            //The loading only works if the array is passed in as the variable
+            // check indices to make sure the variables are assigned correctly
 
             int piece_count{0};
             for (size_t j{0}; j<8; j++) {
@@ -524,42 +534,42 @@ class board {
                         // pawn
                         board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
                         piece_count++;
-                        pieces_array[piece_count] = new pawn(i,j,board_2[convert_index(i,j)]);
-                        std::cout << "printing the board entry: " << board_2[convert_index(i,j)] << std::endl;
+                        //pieces_array[piece_count] = new pawn(i,j,board_2[convert_index(i,j)]);
+                        std::cout  << board_2[convert_index(i,j)] << std::endl;
 
                     } else if (board_2[convert_index(i,j)] == 3 || board_2[convert_index(i,j)] == -3) {
                         // knight
                         board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
                         piece_count++;
-                        pieces_array[piece_count] = new knight(i,j,board_2[convert_index(i,j)]);
+                        //pieces_array[piece_count] = new knight(i,j,board_2[convert_index(i,j)]);
                         std::cout << board_2[convert_index(i,j)] << std::endl;
 
                     } else if (board_2[convert_index(i,j)] == 4 || board_2[convert_index(i,j)] == -4) {
                         // bishop
                         board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
                         piece_count++;
-                        pieces_array[piece_count] = new bishop(i,j,board_2[convert_index(i,j)]); 
+                        //pieces_array[piece_count] = new bishop(i,j,board_2[convert_index(i,j)]); 
                         std::cout << board_2[convert_index(i,j)] << std::endl;
 
                     } else if (board_2[convert_index(i,j)] == 5 || board_2[convert_index(i,j)] == -5) {
                         // rook
                         board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
                         piece_count++;
-                        pieces_array[piece_count] = new rook(i,j,board_2[convert_index(i,j)]);
+                        //pieces_array[piece_count] = new rook(i,j,board_2[convert_index(i,j)]);
                         std::cout << board_2[convert_index(i,j)] << std::endl;
 
                     } else if (board_2[convert_index(i,j)] == 10 || board_2[convert_index(i,j)] == -10) {
                         // king
                         board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
                         piece_count++;
-                        pieces_array[piece_count] = new king(i,j,board_2[convert_index(i,j)]);
+                        //pieces_array[piece_count] = new king(i,j,board_2[convert_index(i,j)]);
                         std::cout << board_2[convert_index(i,j)] << std::endl;
 
                     } else if (board_2[convert_index(i,j)] == 9 || board_2[convert_index(i,j)] == -9) {
                         // queen
                         board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
                         piece_count++;
-                        pieces_array[piece_count] = new queen(i,j,board_2[convert_index(i,j)]);
+                        //pieces_array[piece_count] = new queen(i,j,board_2[convert_index(i,j)]);
                         std::cout << board_2[convert_index(i,j)] << std::endl;
                     } else {
                         board_rep[convert_index(i,j)] = 0;
