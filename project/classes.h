@@ -4,8 +4,6 @@
 #include<map>
 #include<iostream>
 #include<fstream>
-#define WHITE_SQUARE 0xDB
-#define BLACK_SQUARE 0xFF
 #include<algorithm>
 
 
@@ -410,8 +408,11 @@ class board {
         board(bool default_board) {
             if (default_board == true) {
                 // load in the initial file
-                load_game(true);
+                load_game2(true);
+                
+                print_data();
 
+                print_board();
             } else {
                 // load in a different name
                 // read in the game file
@@ -450,6 +451,8 @@ class board {
         }
 
         void load_game(bool default_mode) { // works
+
+            std::cout << "loading game" << std::endl;
             std::vector<int> board_2;
             std::string line;
             // loads the default board set up from a file
@@ -474,13 +477,13 @@ class board {
                 for (size_t i{0}; i<64; i++) {
                     line = "";
                     getline(my_file, line);
-                    std::cout << line << std::endl;
-                    std::cout << std::stoi(line) << std::endl;
+                    std::cout << "loading this into vector: "<< line << std::endl;
+                    board_2.push_back(std::stoi(line));
                     std::cout << "index: " << i << std::endl;
                 }
                 my_file.close();
             }
-            return;
+
             // decode and create objects
 
             int piece_count{0};
@@ -541,6 +544,119 @@ class board {
             }
             //return board_2;
         }
+
+ 
+
+
+// loading fixing
+//
+
+        void load_game2(bool default_mode) { // works
+
+            std::cout << "loading game" << std::endl;
+            //std::vector<int> board_2;
+            std::string line;
+            // loads the default board set up from a file
+            std::fstream my_file;
+        
+            if (default_mode) {
+                my_file.open("default.txt", std::ios::in);
+            } else {
+                my_file.open("last_game.txt", std::ios::in);
+            }
+
+            if (!my_file) {
+                std::cout << "No such file!" << std::endl;
+            } else {
+                std::cout << "File present!" << std::endl;
+                //while (!my_file.eof()) {
+                    //line = "";
+                    //getline(my_file, line);
+                    //std::cout << std::stoi(line) << std::endl;
+                    //board_2.push_back(line);
+                //}
+                for (size_t i{0}; i<64; i++) {
+                    line = "";
+                    getline(my_file, line);
+                    std::cout << "loading this into vector: "<< line << std::endl;
+                    board_rep[i] = std::stoi(line);
+                    std::cout << "index: " << i << std::endl;
+                    std::cout << "This is board_rep at i: " << board_rep[i] << std::endl;
+                }
+                my_file.close();
+            }
+
+            // decode and create objects
+
+            int piece_count{0};
+            for (size_t j{1}; j<=8; j++) {
+                for (size_t i{1}; i<=8;i++) {
+
+                    std::cout << "printing indicies" << std:: endl;
+                    std::cout << "i = " << i << " and j = " << j << std::endl;
+                    std::cout << "convert_index = " << convert_index(i,j) << std::endl;
+
+                    if (board_rep[convert_index(i,j)] == 1 || board_rep[convert_index(i,j)] == -1) {
+                        // pawn
+                        //board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
+                        piece_count++;
+                        pieces_array[piece_count] = new pawn(i,j,board_rep[convert_index(i,j)]);
+                        std::cout  << "loading this entry: " << board_rep[convert_index(i,j)] << std::endl;
+
+                    } else if (board_rep[convert_index(i,j)] == 3 || board_rep[convert_index(i,j)] == -3) {
+                        // knight
+                        //board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
+                        piece_count++;
+                        pieces_array[piece_count] = new knight(i,j,board_rep[convert_index(i,j)]);
+                        std::cout << "loading this entry: " << board_rep[convert_index(i,j)] << std::endl;
+
+                    } else if (board_rep[convert_index(i,j)] == 4 || board_rep[convert_index(i,j)] == -4) {
+                        // bishop
+                        //board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
+                        piece_count++;
+                        pieces_array[piece_count] = new bishop(i,j,board_rep[convert_index(i,j)]); 
+                        std::cout << "loading this entry: " << board_rep[convert_index(i,j)] << std::endl;
+
+                    } else if (board_rep[convert_index(i,j)] == 5 || board_rep[convert_index(i,j)] == -5) {
+                        // rook
+                        //board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
+                        piece_count++;
+                        pieces_array[piece_count] = new rook(i,j,board_rep[convert_index(i,j)]);
+                        std::cout << "loading this entry: " << board_rep[convert_index(i,j)] << std::endl;
+
+                    } else if (board_rep[convert_index(i,j)] == 10 || board_rep[convert_index(i,j)] == -10) {
+                        // king
+                        //board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
+                        piece_count++;
+                        pieces_array[piece_count] = new king(i,j,board_rep[convert_index(i,j)]);
+                        std::cout << "loading this entry: " << board_rep[convert_index(i,j)] << std::endl;
+
+                    } else if (board_rep[convert_index(i,j)] == 9 || board_rep[convert_index(i,j)] == -9) {
+                        // queen
+                        //board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
+                        piece_count++;
+                        pieces_array[piece_count] = new queen(i,j,board_rep[convert_index(i,j)]);
+                        std::cout << "loading this entry: " << board_rep[convert_index(i,j)] << std::endl;
+                    } else {
+                        //board_rep[convert_index(i,j)] = 0;
+                        std::cout << "loading this entry: " << 0 << std::endl;
+                    }
+        
+                }
+            }
+            //return board_2;
+        }
+
+
+
+
+//
+//
+
+
+
+
+
 
         void print_data() {
             for (size_t i{0}; i<64; i++) {
@@ -623,43 +739,38 @@ class board {
         void print_board() {
             std::cout << "     A    B    C    D    E    F    G    H  " << std::endl;
             std::cout << "################################################" << std::endl;
-                for (size_t i{7}; i >= 0; i--) {
-                    if ( i%2 == 0) {
+                for (size_t i{8}; i != 0; i--) {
                     // Line starting with BLACK
-                        printLine(i, BLACK_SQUARE, WHITE_SQUARE);
-                    } else {
-                        // Line starting with WHITE
-                        printLine(i, WHITE_SQUARE, BLACK_SQUARE);
-                    }
+                    printLine(i);
                 }
             std::cout << "################################################" << std::endl;
         }
 
-        std::string return_piece(int n, int colour) {
+        std::string return_piece(int n) {
             int temp_n = n;
             if (temp_n < 0) {
                 temp_n = temp_n*-1;
             }
             std::string piece;
             if (temp_n == 0) {
-                return std::to_string(colour);
+                return " 0 ";
             } else {
-                if (temp_n == 1) {
+                if (temp_n == 1 || temp_n == -1 ) {
                     // pawn
                     piece = "p";
-                } else if (temp_n == 3) {
+                } else if (temp_n == 3 || temp_n == -3) {
                     // knight
                     piece = "n";
-                } else if (temp_n == 4) {
+                } else if (temp_n == 4 || temp_n == -4) {
                     // bishop
                     piece = "b";
-                } else if (temp_n == 5) {
+                } else if (temp_n == 5 || temp_n == -5) {
                     // rook
                     piece = "r";
-                } else if (temp_n == 10) {
+                } else if (temp_n == 10 || temp_n == -10) {
                     // king
                     piece = "k";
-                } else if (temp_n == 9) {
+                } else if (temp_n == 9 || temp_n == -9) {
                     // queen
                     piece = "q";
                 }
@@ -670,50 +781,54 @@ class board {
             return piece;
         }
 
-        void printLine(int y, int colour_1, int colour_2) {
+        void printLine(int y) {
             // each line has 3 width and 3 high.
             // print top layer
-            std::cout << "   ";
+            //for (size_t i{0}; i<=8; i++) {
+            //    for (size_t j{0}; j<4; j++) {std::cout << " ";}
+            //    std::cout << "|";
+            //}
+            //std::cout << std::endl;
+            //// print layer with pieces
+            //std::cout << " " << y << " " << "|";
+            //for (size_t i{1}; i<=8; i++) {
+            //    std::cout << "  ";
+            //    // check for piece
+            //    std::cout <<  return_piece(board_rep[convert_index(i,y)]);
+            //    std::cout << "  ";
+            //}
+            //std::cout << std::endl;
+            //// print bottom layer
+            //for (size_t i{0}; i<=8; i++) {
+            //    for (size_t j{0}; j<5; j++) {std::cout << " ";}
+            //    std::cout << "|";
+            //}
+            //std::cout << std::endl;
+
+            // *******************************************
+            for (size_t i{0}; i<9; i++) {
+                for (size_t j{0}; j<3; j++) {std::cout << " ";}
+                std::cout << "|";
+            }
+            std::cout<<std::endl;
+            
+            std::cout << " " << y << " |";
             for (size_t i{1}; i<=8; i++) {
-                if (i%2 == 0) {
-                    // colour 1
-                    for (size_t j{0}; j<5; j++) {std::cout << colour_1;}
-                } else {
-                    // colour 2
-                    for (size_t j{0}; j<5; j++) {std::cout << colour_2;}
-                }
+                std::cout << return_piece(board_rep[convert_index(i,y)]);
+
+                //std::cout << std::endl << "the index: " << convert_index(i,y) << std::endl;
+
+                std::cout << "|";
             }
             std::cout << std::endl;
-            // print layer with pieces
-            std::cout << " " << y << " ";
-            for (size_t i{1}; i<=8; i++) {
-                if (i%2 == 0) {
-                    // colour 1
-                    std::cout << colour_1 << colour_1;
-                    // check for piece
-                    std::cout <<  return_piece(board_rep[convert_index(i,y)],colour_1);
-                    std::cout << colour_1 << colour_1;
-                } else {
-                    // colour 2
-                    std::cout << colour_2 << colour_2;
-                    // check for piece
-                    std::cout << return_piece(board_rep[convert_index(i,y)], colour_2);
-                    std::cout << colour_2 << colour_2;
-                }
+
+            for (size_t i{0}; i<9; i++) {
+                for (size_t j{0}; j<3; j++) {std::cout << " ";}
+                std::cout << "|";
             }
-            std::cout << std::endl;
-            // print bottom layer
-            std::cout << "   ";
-            for (size_t i{1}; i<=8; i++) {
-                if (i%2 == 0) {
-                    // colour 1
-                    for (size_t j{0}; j<5; j++) {std::cout << colour_1;}
-                } else {
-                    // colour 2
-                    for (size_t j{0}; j<5; j++) {std::cout << colour_2;}
-                }
-            }
-            std::cout << std::endl;
+            std::cout<<std::endl;
+            std::cout << "----------------------------------------------" << std::endl;
+
         }
 
         void find_all_moves() {
