@@ -56,21 +56,21 @@ class piece {
             position[1] = y;
         }
 
-        virtual void find_possible_moves(int* board) {
+        virtual bool find_possible_moves(int* board) {
             possible_moves.push_back("00");
+            return false;
         }
 
-        std::vector<std::string> list_moves() {
-            return possible_moves;
-        }
+        std::vector<std::string> list_moves() {return possible_moves;}
 
-        std::string get_name() {
-            return name;
-        }
+        std::string get_name() {return name;}
 
-        bool is_removed() {
-            return removed;
-        }
+        bool is_removed() { return removed; }
+
+        int get_point() { return point_value; }
+
+        virtual bool find_attack_moves(int* board) {return false;}
+
 };
 
 class pawn : public piece {
@@ -79,6 +79,7 @@ class pawn : public piece {
         bool not_moved{true};
         //std::vector<std::string> possible_moves;
         bool ascend{false};
+        std::vector<std::string> danger_moves;
     public:
         pawn() :piece{} {
             name = "pawn";
@@ -87,55 +88,66 @@ class pawn : public piece {
         pawn(int x, int y, int init_point) : piece{x,y,"pawn", init_point} {}
         virtual ~pawn() {};
 
-        void find_possible_moves(int* board) {
-            // cross reference the board with the current position
-            possible_moves = {}; // reset the number of moves
-            std::string temp_string;
-            // the point value is the length of the move in the correct direction
-            // if -1 it is black but if it's +1 it's white
-            // start if
-            
+        bool find_possible_moves(int* board) {
             // position[0] ranges from 0 - 7. +1 for the real value
+            std::string temp_string;
+            bool check{false};
+            // first move
 
-            if ((position[1]+1 == 8) || (position[1]-1 == -1) ) {
-                
-                if (board[convert_index(position[0], position[1] + point_value)] == 0) {
-                    // the board place is empty
+            // possible moves
+            // +1,0 -1,0 or pv+,0
+            // if first 2 check then check
+            int* x_moves;
+            x_moves = new int[2]{+1,-1};
+            possible_moves = {};
+
+            // move ahead
+            if ((position[1]+point_value >= 1) || (position[1]+point_value <= 8)) {
+                if (board[convert_index(position[0], position[1] + point_value)] == 0) { // if the place ahead is empty
                     temp_string = std::to_string(position[0]) + std::to_string(position[1] + point_value);
                     possible_moves.push_back(temp_string);
                     temp_string = "";
                 }
-
-                if ((not_moved == true) &&  (board[convert_index(position[0], position[1] + 2*point_value)] == 0)) {
-                    temp_string = std::to_string(position[0]) + std::to_string(position[1] + point_value);
-                    possible_moves.push_back(temp_string);
-                    temp_string = "";                   
-                }
-
-                // check the edge
-                if (position[0]+1 != 8) {
-                    if (board[convert_index(position[0] + 1, position[1] + point_value)] == 0) {
-                       // forward and to the right
-                        temp_string = std::to_string(position[0] + 1) + std::to_string(position[1] + point_value);
-                        possible_moves.push_back(temp_string);
-                        temp_string = "";
-                    }
-                } 
-
-                // check the other edge
-                if (position[0]-1 != -1) {
-                    if (board[convert_index(position[0] - 1, position[1] + point_value)]) {
-                       // forward to the left
-                       temp_string = std::to_string(position[0] - 1) + std::to_string(position[1] + point_value);
-                       possible_moves.push_back(temp_string);
-                       temp_string = "";
-                    }
-                }
-
-            }  else {
-                ascend = true; // can't move pawn. Only exchange for different piece.
             }
-        } // end of the find_possible_moves
+ 
+            for (size_t i{0}; i<2; i++) {
+                if ((1 <= position[0] + x_moves[i]) && (8 >= position[0] + x_moves[i])) { // check range y-axis
+                    if ((1 <= position[1] + point_value) && (8 >= position[1] + point_value)) { // check range x-axis
+                        if (board[convert_index(position[0] + x_moves[i], position[1] + point_value)]*point_value < 0) { // the piece in the place is enemy
+                            temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + point_value);
+                            possible_moves.push_back(temp_string);
+                            temp_string = "";                           
+                            if (board[convert_index(position[0] + x_moves[i], position[1] + point_value)]*point_value == -10) {check = true;}
+                        }
+                    }
+                }
+            }
+            delete x_moves;
+            return check;
+        }
+
+        bool find_attack_moves(int* board) {
+            std::string temp_string;
+            bool check{false};
+            int* x_moves;
+            x_moves = new int[2]{+1,-1};
+            possible_moves = {};
+
+            for (size_t i{0}; i<2; i++) {
+                if ((1 <= position[0] + x_moves[i]) && (8 >= position[0] + x_moves[i])) { // check range y-axis
+                    if ((1 <= position[1] + point_value) && (8 >= position[1] + point_value)) { // check range x-axis
+                        if (board[convert_index(position[0] + x_moves[i], position[1] + point_value)]*point_value < 0) { // the piece in the place is enemy
+                            temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + point_value);
+                            danger_moves.push_back(temp_string);
+                            temp_string = "";                           
+                            if (board[convert_index(position[0] + x_moves[i], position[1] + point_value)]*point_value == -10) {check = true;}
+                        }
+                    }
+                }
+            }
+            delete x_moves;
+            return check;
+        }
 };
 
 class knight : public piece {
@@ -152,8 +164,9 @@ class knight : public piece {
             position[1] = y;
         }
         virtual ~knight() {};
-        void find_possible_moves(int* board) {
+        bool find_possible_moves(int* board) {
             std::string temp_string;
+            bool check{false};
             // first move
             int* x_moves;
             x_moves = new int[8]{-2,-1,+2,-1,-2,+1,+2,+1};
@@ -174,12 +187,16 @@ class knight : public piece {
                             possible_moves.push_back(temp_string);
                             temp_string = "";                           
                             // enemy piece on the square
+                            if (board[convert_index(position[0] + x_moves[i], position[1] + y_moves[i])]*point_value == -30) {
+                                check = true;
+                            }
                         }
                     }
                 }
+            }
             delete x_moves;
             delete y_moves;
-            }
+            return check;
         }
 };
 
@@ -199,13 +216,14 @@ class bishop : public piece { // get the find moves function outside of the clas
             position[1] = y;
         }
 
-        void find_possible_moves(int* board) {
+        bool find_possible_moves(int* board) {
             std::string temp_string;
+            bool check{false};
             int multiplier;
             int* x_moves;
-            x_moves = new int[8]{-1,+1,+1,-1};
+            x_moves = new int[4]{-1,+1,+1,-1};
             int* y_moves;
-            y_moves = new int[8]{+1,+1,-1,-1};
+            y_moves = new int[4]{+1,+1,-1,-1};
             for (size_t i{0}; i<4; i++) {
                 // loops over four directions
                 bool keep_going{true};
@@ -222,6 +240,9 @@ class bishop : public piece { // get the find moves function outside of the clas
                             possible_moves.push_back(temp_string);
                             temp_string = "";                             
                             keep_going = false;
+                            if (board[convert_index(position[0] + multiplier * x_moves[i], position[1] + multiplier * y_moves[i])]* point_value == -40) {
+                                check = true;
+                            }
                         } else {
                             // friendly piece
                             // stop without appending
@@ -234,6 +255,7 @@ class bishop : public piece { // get the find moves function outside of the clas
             }
             delete x_moves;
             delete y_moves;
+            return check;
         }
 };
 
@@ -254,13 +276,15 @@ class rook : public piece { // get the find moves function outside of the class 
 
         ~rook() {}
 
-        void find_possible_moves(int* board) {
+        bool find_possible_moves(int* board) {
+            bool check{false};
             std::string temp_string;
             int multiplier;
             int* x_moves;
-            x_moves = new int[8]{0,+1,0,-1};
+            x_moves = new int[4]{0,+1,0,-1};
             int* y_moves;
-            y_moves = new int[8]{+1,0,-1,0};
+            y_moves = new int[4]{+1,0,-1,0};
+
             for (size_t i{0}; i<4; i++) {
                 // loops over four directions
                 bool keep_going{true};
@@ -274,9 +298,13 @@ class rook : public piece { // get the find moves function outside of the class 
                         if (board[convert_index(position[0] + multiplier * x_moves[i], position[1] + multiplier * y_moves[i])]* point_value < 0) { // enemy piece
                             temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + y_moves[i]);
                             possible_moves.push_back(temp_string);
-                            temp_string = "";                            // append move and stop
+                            temp_string = "";                            
                             // stop
                             keep_going = false;
+                            if (board[convert_index(position[0] + multiplier * x_moves[i], position[1] + multiplier * y_moves[i])]* point_value == -50) {
+                                check = true;
+                            }
+
                         } else {
                             // friendly piece
                             // stop without appending
@@ -290,6 +318,7 @@ class rook : public piece { // get the find moves function outside of the class 
 
             delete x_moves;
             delete y_moves;
+            return check;
         }
 };
 
@@ -308,13 +337,14 @@ class queen : public piece {
             position[1] = y;
         }
 
-        void find_possible_moves(int* board) {
+        bool find_possible_moves(int* board) {
             std::string temp_string;
             int multiplier;
             int* x_moves;
             x_moves = new int[8]{0,+1,0,-1,-1,+1,+1,-1};
             int* y_moves;
             y_moves = new int[8]{+1,0,-1,0,+1,+1,-1,-1};
+            bool check{false};
 
             for (size_t i{0}; i<8; i++) {
                 // loops over four directions
@@ -333,6 +363,10 @@ class queen : public piece {
                             temp_string = "";                            
                             // stop
                             keep_going = false;
+                            if (board[convert_index(position[0] + multiplier * x_moves[i], position[1] + multiplier * y_moves[i])] * point_value == -90) { // check
+                                check = true;
+                            }
+
                         } else {
                             // friendly piece
                             // stop without appending
@@ -346,13 +380,12 @@ class queen : public piece {
 
             delete x_moves;
             delete y_moves;
+            return check;
         }
 };
 
 class king : public piece { // one in each direction
     protected:
-        // protected variables
-        //std::vector<std::string> possible_moves;
         bool safe{true};
     public:
         king() : piece {} {
@@ -367,7 +400,8 @@ class king : public piece { // one in each direction
 
         ~king() {}
 
-        void find_possible_moves(int* board) {
+        bool find_possible_moves(int* board) {
+            bool check{false};
             std::string temp_string;
             int* x_moves;
             x_moves = new int[8]{0,+1,0,-1,-1,+1,+1,-1};
@@ -385,12 +419,17 @@ class king : public piece { // one in each direction
                         temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + y_moves[i]);
                         possible_moves.push_back(temp_string);
                         temp_string = "";
+                        // check if it's a check
+                        if (board[convert_index(position[0] + x_moves[i], position[1] + y_moves[i])] * point_value == -100) {
+                            check = true;
+                        } // check logic
                     }
                 }
             }
 
             delete x_moves;
             delete y_moves;
+            return check;
         }
 };
 
@@ -407,6 +446,8 @@ class board {
         int standard_game[64] = {+5,+3,+4,+9,+10,+4,+3,+5,+1,+1,+1,+1,+1,+1,+1,+1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-5,-3,-4,-10,-9,-4,-3,-5};
         int *board_rep = new int[64];  // dynamically assign an integer array for board representation
         piece** pieces_array = new piece*[32];
+        bool check{false};
+        bool mate{false};
 
     public:
         board() = default;
@@ -414,20 +455,23 @@ class board {
 
             if (default_board == true) {
                 // load in the initial file
-                load_game2(true);
-                print_data();
+                load_game(true);
+                //print_data();
                 print_board();
             } else {
                 // load in a different name
                 // read in the game file
                 load_game(false);
+                print_board();
             }
         }
         ~board() {
             delete[] board_rep;
+            
             for (size_t i{0}; i<32; i++) {
-                //delete pieces_array[i];
+                delete pieces_array[i];
             }
+            delete[] pieces_array;
         }
 
         int sum_board() {
@@ -449,113 +493,12 @@ class board {
             std::cout << "Welcome! What would you like to do?:" << std::endl;
             std::cout << "1. Player vs Player" << std::endl;
             std::cout << "2. Player vs AI" << std::endl;
-            std::cout << "3. Load Previous game" << std::endl;
             std::string choice;
             std::cin >> choice;
         }
 
+
         void load_game(bool default_mode) { // works
-
-            std::cout << "loading game" << std::endl;
-            std::vector<int> board_2;
-            std::string line;
-            // loads the default board set up from a file
-            std::fstream my_file;
-        
-            if (default_mode) {
-                my_file.open("default.txt", std::ios::in);
-            } else {
-                my_file.open("last_game.txt", std::ios::in);
-            }
-
-            if (!my_file) {
-                std::cout << "No such file!" << std::endl;
-            } else {
-                std::cout << "File present!" << std::endl;
-                //while (!my_file.eof()) {
-                    //line = "";
-                    //getline(my_file, line);
-                    //std::cout << std::stoi(line) << std::endl;
-                    //board_2.push_back(line);
-                //}
-                for (size_t i{0}; i<64; i++) {
-                    line = "";
-                    getline(my_file, line);
-                    std::cout << "loading this into vector: "<< line << std::endl;
-                    board_2.push_back(std::stoi(line));
-                    std::cout << "index: " << i << std::endl;
-                }
-                my_file.close();
-            }
-
-            // decode and create objects
-
-            size_t piece_count{0};
-            for (int j{1}; j<=8; j++) {
-                for (int i{1}; i<=8;i++) {
-
-                    std::cout << "printing indicies" << std:: endl;
-                    std::cout << "i = " << i << " and j = " << j << std::endl;
-                    std::cout << "convert_index = " << convert_index(i,j) << std::endl;
-
-                    if (board_2[convert_index(i,j)] == 1 || board_2[convert_index(i,j)] == -1) {
-                        // pawn
-                        board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
-                        piece_count++;
-                        pieces_array[piece_count] = new pawn{i,j,board_2[convert_index(i,j)]};
-                        std::cout  << "loading this entry: " << board_2[convert_index(i,j)] << std::endl;
-
-                    } else if (board_2[convert_index(i,j)] == 3 || board_2[convert_index(i,j)] == -3) {
-                        // knight
-                        board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
-                        piece_count++;
-                        pieces_array[piece_count] = new knight{i,j,board_2[convert_index(i,j)]};
-                        std::cout << "loading this entry: " << board_2[convert_index(i,j)] << std::endl;
-
-                    } else if (board_2[convert_index(i,j)] == 4 || board_2[convert_index(i,j)] == -4) {
-                        // bishop
-                        board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
-                        piece_count++;
-                        pieces_array[piece_count] = new bishop{i,j,board_2[convert_index(i,j)]}; 
-                        std::cout << "loading this entry: " << board_2[convert_index(i,j)] << std::endl;
-
-                    } else if (board_2[convert_index(i,j)] == 5 || board_2[convert_index(i,j)] == -5) {
-                        // rook
-                        board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
-                        piece_count++;
-                        pieces_array[piece_count] = new rook{i,j,board_2[convert_index(i,j)]};
-                        std::cout << "loading this entry: " << board_2[convert_index(i,j)] << std::endl;
-
-                    } else if (board_2[convert_index(i,j)] == 10 || board_2[convert_index(i,j)] == -10) {
-                        // king
-                        board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
-                        piece_count++;
-                        pieces_array[piece_count] = new king{i,j,board_2[convert_index(i,j)]};
-                        std::cout << "loading this entry: " << board_2[convert_index(i,j)] << std::endl;
-
-                    } else if (board_2[convert_index(i,j)] == 9 || board_2[convert_index(i,j)] == -9) {
-                        // queen
-                        board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
-                        piece_count++;
-                        pieces_array[piece_count] = new queen(i,j,board_2[convert_index(i,j)]);
-                        std::cout << "loading this entry: " << board_2[convert_index(i,j)] << std::endl;
-                    } else {
-                        board_rep[convert_index(i,j)] = 0;
-                        std::cout << "loading this entry: " << 0 << std::endl;
-                    }
-        
-                }
-            }
-            //return board_2;
-        }
-
- 
-
-
-// loading fixing
-//
-
-        void load_game2(bool default_mode) { // works
 
             std::cout << "loading game" << std::endl;
             //std::vector<int> board_2;
@@ -573,12 +516,6 @@ class board {
                 std::cout << "No such file!" << std::endl;
             } else {
                 std::cout << "File present!" << std::endl;
-                //while (!my_file.eof()) {
-                    //line = "";
-                    //getline(my_file, line);
-                    //std::cout << std::stoi(line) << std::endl;
-                    //board_2.push_back(line);
-                //}
                 for (size_t i{0}; i<64; i++) {
                     line = "";
                     getline(my_file, line);
@@ -595,65 +532,56 @@ class board {
             
             int piece_count{0};
             for (int j{1}; j<=8; j++) {
-                for (int i{1}; i<=8;i++) {
+                for (int i{1}; i<=8;i++) { 
 
-                    if (board_rep2[convert_index(i,j)] == 1 || board_rep2[convert_index(i,j)] == -1) {
+                    if (board_rep[convert_index(i,j)] == 1 || board_rep[convert_index(i,j)] == -1) {
                         // pawn
                         //board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
                         piece_count++;
-                        pieces_array[piece_count] = new pawn{i,j,board_rep2[convert_index(i,j)]};
+                        pieces_array[piece_count] = new pawn{i,j,board_rep[convert_index(i,j)]};
 
-                    } else if (board_rep2[convert_index(i,j)] == 3 || board_rep2[convert_index(i,j)] == -3) {
+                    } else if (board_rep[convert_index(i,j)] == 3 || board_rep[convert_index(i,j)] == -3) {
                         // knight
                         //board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
                         piece_count++;
-                        pieces_array[piece_count] = new knight{i,j,board_rep2[convert_index(i,j)]};
+                        pieces_array[piece_count] = new knight{i,j,board_rep[convert_index(i,j)]};
 
-                    } else if (board_rep2[convert_index(i,j)] == 4 || board_rep2[convert_index(i,j)] == -4) {
+                    } else if (board_rep[convert_index(i,j)] == 4 || board_rep[convert_index(i,j)] == -4) {
                         // bishop
                         //board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
                         piece_count++;
                         pieces_array[piece_count] = new bishop{i,j,board_rep[convert_index(i,j)]}; 
 
-                    } else if (board_rep2[convert_index(i,j)] == 5 || board_rep2[convert_index(i,j)] == -5) {
+                    } else if (board_rep[convert_index(i,j)] == 5 || board_rep[convert_index(i,j)] == -5) {
                         // rook
                         //board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
                         piece_count++;
                         pieces_array[piece_count] = new rook{i,j,board_rep[convert_index(i,j)]}; 
 
-                    } else if (board_rep2[convert_index(i,j)] == 10 || board_rep2[convert_index(i,j)] == -10) {
+                    } else if (board_rep[convert_index(i,j)] == 10 || board_rep[convert_index(i,j)] == -10) {
                         // king
                         //board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
                         piece_count++;
-                        pieces_array[piece_count] = new king{i,j,board_rep2[convert_index(i,j)]};
+                        pieces_array[piece_count] = new king{i,j,board_rep[convert_index(i,j)]};
 
-                    } else if (board_rep2[convert_index(i,j)] == 9 || board_rep2[convert_index(i,j)] == -9) {
+                    } else if (board_rep[convert_index(i,j)] == 9 || board_rep[convert_index(i,j)] == -9) {
                         // queen
                         //board_rep[convert_index(i,j)] = board_2[convert_index(i,j)];
                         piece_count++;
-                        pieces_array[piece_count] = new queen{i,j,board_rep2[convert_index(i,j)]};
+                        pieces_array[piece_count] = new queen{i,j,board_rep[convert_index(i,j)]};
                     } else {
                         //board_rep[convert_index(i,j)] = 0;
                     }
         
                 }
             }
-            //return board_2;
         }
-
-
-
-//
-//
-
-
 
         void print_data() {
             for (size_t i{0}; i<64; i++) {
                 std::cout << "the variable entry" << board_rep[i] << std::endl;
             }  
         }
-
 
         void save_game() { // works
             std::cout << "saving game" << std::endl;
@@ -692,7 +620,6 @@ class board {
                     std::cout << pieces_array[i]->get_name();
                     std::cout << " positioned at : " << pieces_array[i]->get_pos();
 
-
                     temp_moves = pieces_array[i]->list_moves();
                     for (size_t j{0}; j < temp_moves.size() ; j++) {
                         moves.push_back(temp_moves[j]); // iterate over the individual moves
@@ -727,7 +654,7 @@ class board {
         }
 
         void print_board() {
-            std::cout << "     A    B    C    D    E    F    G    H  " << std::endl;
+            std::cout << "   | A | B | C | D | E | F | G | H | " << std::endl;
             std::cout << "################################################" << std::endl;
                 for (size_t i{8}; i != 0; i--) {
                     // Line starting with BLACK
@@ -743,7 +670,7 @@ class board {
             }
             std::string piece;
             if (temp_n == 0) {
-                return " 0 ";
+                return "0";
             } else {
                 if (temp_n == 1 || temp_n == -1 ) {
                     // pawn
@@ -780,7 +707,7 @@ class board {
             std::cout<<std::endl;
             
             std::cout << " " << y << " |";
-            for (size_t i{1}; i<=8; i++) {
+            for (size_t i{1}; i<=8; i++) { 
                 std::cout << " " << return_piece(board_rep[convert_index(i,y)]) << " ";
 
                 //std::cout << std::endl << "the index: " << convert_index(i,y) << std::endl;
@@ -798,16 +725,130 @@ class board {
 
         }
 
-        void find_all_moves() {
-            for (size_t i{0}; i<32; i++) { // finds the possible moves of all pieces
-                pieces_array[i]->find_possible_moves(board_rep);
+        bool is_king_safe(int player, int king_index) {
+            bool safe{true};
+            pieces_array[king_index]->find_possible_moves(board_rep);
+            std::string position = pieces_array[king_index]->get_pos();
+            std::vector<std::string> all_moves;
+            std::vector<std::string> king_moves = pieces_array[king_index]->list_moves();
+            // get array of enemy attack moves;
+            for (size_t i{0}; i<32; i++) {
+                // check if the piece was removed
+                if (pieces_array[king_index]->get_point()*player < 0) { // find only moves for enemy pieces
+                    if (pieces_array[i]->is_removed() == false) {
+                        // list moves but with special function for pawns
+                        if (pieces_array[i]->get_name() == "pawn") {
+                            pieces_array[i]->find_attack_moves(board_rep);
+                        } else { 
+                            pieces_array[i]->find_possible_moves(board_rep);
+                        }
+                    }
+                    // append all lists together
+                    all_moves = pieces_array[i]->list_moves();
+                    for (size_t j{0}; j<all_moves.size(); j++) {
+                        for (size_t k{0}; k<10; k++) {
+                            
+                        }
+                    }  
+                }
+ 
             }
         }
 
-        bool is_king_safe() {
-            bool safe{true};
-            return safe;
+        /// notes notes ntoes
+        //
+        // can the king moves runs once. The attack moves should be added as a variable in the board class
+        // The can king move uses that array and returns the list of the king's moves which the player can select.
+        // If the king can't move and is not safe the game ends
+
+        bool can_king_move() {
+            
         }
+
+        std::vector<std::string> find_all_moves(int player) {
+            // +1 if white, -1 if black;
+        
+            bool indicator{false};
+            std::vector<std::string> player_moves;
+            std::vector<std::string> enemy_moves;
+            std::vector<std::string> temp_string;
+            for (size_t i{0}; i<32; i++) { 
+                if (pieces_array[i]->get_point()*player < 0) { // this check makes sure the pieces for which moves we find belong to the enemy
+                    indicator = pieces_array[i]->find_possible_moves(board_rep);
+                    
+                    if (indicator) {
+                        // the enemy has us in check with this piece
+                        temp_string = {};
+                        temp_string = pieces_array[i]->list_moves();
+                        for (size_t j{0}; j<temp_string.size(); j++) {
+                            enemy_moves.push_back(temp_string[j]);
+                        }
+                    }
+                }
+            }
+
+            // enemy moves contains all the moves from a piece which checks our king
+
+            return all_moves;
+        }
+
+        int get_choice() {
+            bool valid = false;
+            int piece_index;
+            std::string choice;
+            std::cout << "Enter the position of the piece (in form ex. A1): ";
+            std::cin >> choice;
+
+            for (size_t i{0}; i<32; i++) {
+                if (choice == pieces_array[i]->get_pos()) {return piece_index;}
+            }
+
+            return -1;
+        }
+
+
+        void play_turn(int player) {
+            print_board();
+            std::string temp_string;
+            int indicator;
+            std::vector<std::string> possible_moves;
+            // list all possible moves
+            // check if moves causes friendly check
+            // remove the ones that do
+            //
+            // check if king is under check
+            // if yes check if it has moves
+            // if no finish game
+            // 
+            // get move from player
+            // move the piece
+            // remove piece if necessary
+            // check if the enemy king is under check
+            std::vector<std::string> all_moves =  find_all_moves(player);
+            // get choice for move
+            indicator = get_choice();
+            while (indicator == -1) {
+                std::cout << "The input is incorrect. Try again";
+                indicator = get_choice();
+            }
+            // display moves for the piece selected:
+            possible_moves = pieces_array[indicator]->list_moves();
+            std::cout << "The moves for " << pieces_array[indicator]->get_name() << " are: " << std::endl;
+            for (size_t i{0}; i<possible_moves.size();i++) {
+                std::cout << possible_moves[i] << ", ";
+            }
+            std::cout << std::endl;
+
+
+
+            is_king_safe();
+        }
+
+        void AI_turn() {
+
+        }
+
+        void trial_move(int* const board, piece pieces_array)
 
 }; // valgrind for memory leaks
 
