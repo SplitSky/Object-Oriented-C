@@ -25,6 +25,15 @@ std::string convert_chess_notation(std::string initial_pos) { // not tested
     return chess_notation + initial_pos[1];
 }
 
+std::vector<int> decode_chess_notation(std::string notation) {
+    std::vector<int> position = {0,0};
+    char temp_string = notation[0];
+    std::map<int, char> position_map = {{1,'A',},{2,'B',},{3,'C',},{4,'D',},{5,'E',},{6,'F',},{7,'G',},{8,'H',}};
+    position[0] = position_map.find(temp_string)->first;
+    position[1] = int(notation[1]);
+    return position;
+}
+
 class piece {
     protected:
         // protected variables
@@ -70,6 +79,8 @@ class piece {
         int get_point() { return point_value; }
 
         virtual bool find_attack_moves(int* board) {return false;}
+
+        void set_possible_moves(std::vector<std::string> moves) {possible_moves = moves;}
 
 };
 
@@ -637,6 +648,13 @@ class board {
             // 2. Play game
             // 3. Type "X" if you want to quit.
             // 4. Type "XS" if you want to quit and save the game
+            
+            // white player starts
+            int player{1};
+            while (mate == false) {
+                play_turn(player);
+                player = player*-1;
+            }
         }
 
         void PvAI() {
@@ -746,13 +764,16 @@ class board {
                     // append all lists together
                     all_moves = pieces_array[i]->list_moves();
                     for (size_t j{0}; j<all_moves.size(); j++) {
-                        for (size_t k{0}; k<10; k++) {
-                            
-                        }
-                    }  
-                }
+                        for (size_t k{0}; k<king_moves.size(); k++) {
+                            if (king_moves[k] == all_moves[j]) {
+                                return false;
+                            }
+                        }  
+                    }
  
+                }
             }
+            return true;
         }
 
         /// notes notes ntoes
@@ -761,35 +782,67 @@ class board {
         // The can king move uses that array and returns the list of the king's moves which the player can select.
         // If the king can't move and is not safe the game ends
 
-        bool can_king_move() {
-            
-        }
+        bool can_king_move(int player, int king_index) {
+            bool safe{true};
+            pieces_array[king_index]->find_possible_moves(board_rep);
+            std::string position = pieces_array[king_index]->get_pos();
+            std::vector<std::string> all_moves;
+            std::vector<std::string> king_moves = pieces_array[king_index]->list_moves();
+            int counter{0};
+            // get array of enemy attack moves;
+            for (size_t i{0}; i<32; i++) {
+                // check if the piece was removed
+                if (pieces_array[king_index]->get_point()*player < 0) { // find only moves for enemy pieces
+                    if (pieces_array[i]->is_removed() == false) {
+                        // list moves but with special function for pawns
+                        if (pieces_array[i]->get_name() == "pawn") {
+                            pieces_array[i]->find_attack_moves(board_rep);
+                        } else { 
+                            pieces_array[i]->find_possible_moves(board_rep);
+                        }
+                    }
+                    // append all lists together
+                    all_moves = pieces_array[i]->list_moves();
+                    for (size_t j{0}; j<all_moves.size(); j++) {
+                        for (size_t k{0}; k<king_moves.size(); k++) {
+                            if (king_moves[k] == all_moves[j]) {
+                                king_moves[k] = "forbidden"; 
+                            }
+                        }  
+                    }
+ 
+                }
+            }
+            all_moves.clear();
+            // check what moves are available to the king
+            for (size_t i{0}; i<king_moves.size(); i++) {
+                if (king_moves[i] != "forbidden") {
+                    all_moves.push_back(king_moves[i]);
+                }
+            }
 
-        std::vector<std::string> find_all_moves(int player) {
+            pieces_array[king_index]->set_possible_moves(all_moves); // overwrite the possible moves after check verification
+            
+            if (all_moves.size() == 0) {
+                return false; // check mate
+            } else {
+                return true; // just check
+            }
+
+        }           
+
+
+        void find_all_moves(int player) {
             // +1 if white, -1 if black;
         
             bool indicator{false};
             std::vector<std::string> player_moves;
-            std::vector<std::string> enemy_moves;
-            std::vector<std::string> temp_string;
-            for (size_t i{0}; i<32; i++) { 
-                if (pieces_array[i]->get_point()*player < 0) { // this check makes sure the pieces for which moves we find belong to the enemy
+            for (size_t i{0}; i<32; i++) { // loops through the pieces 
+                if (pieces_array[i]->get_point()*player > 0) { // this check makes sure the pieces for which moves we find belong to the player
                     indicator = pieces_array[i]->find_possible_moves(board_rep);
-                    
-                    if (indicator) {
-                        // the enemy has us in check with this piece
-                        temp_string = {};
-                        temp_string = pieces_array[i]->list_moves();
-                        for (size_t j{0}; j<temp_string.size(); j++) {
-                            enemy_moves.push_back(temp_string[j]);
-                        }
-                    }
-                }
+                }   
             }
-
             // enemy moves contains all the moves from a piece which checks our king
-
-            return all_moves;
         }
 
         int get_choice() {
@@ -806,49 +859,81 @@ class board {
             return -1;
         }
 
+        int find_king_index(int player) {
+            // w>0 ; b<0
+            for (size_t i{0}; i<32; i++) { // loop through pieces array
+                if (pieces_array[i]->get_name() == "king") {
+                    if (pieces_array[i]->get_point()*player > 0) {
+                        return i;
+                    }
+                }
+            }
+        }
 
         void play_turn(int player) {
             print_board();
             std::string temp_string;
             int indicator;
             std::vector<std::string> possible_moves;
+            std::vector<int> piece_location;
             // list all possible moves
             // check if moves causes friendly check
             // remove the ones that do
-            //
             // check if king is under check
             // if yes check if it has moves
             // if no finish game
-            // 
             // get move from player
             // move the piece
             // remove piece if necessary
             // check if the enemy king is under check
-            std::vector<std::string> all_moves =  find_all_moves(player);
+            find_all_moves(player); // generates possible moves
+            int king_index = find_king_index(player);
+            check = is_king_safe(player, king_index);
+            mate = can_king_move(player, king_index); // also overrides the king moves based on the check conditions.
+
             // get choice for move
             indicator = get_choice();
             while (indicator == -1) {
                 std::cout << "The input is incorrect. Try again";
                 indicator = get_choice();
             }
+            piece* current_piece = pieces_array[indicator];
             // display moves for the piece selected:
-            possible_moves = pieces_array[indicator]->list_moves();
-            std::cout << "The moves for " << pieces_array[indicator]->get_name() << " are: " << std::endl;
+            possible_moves = current_piece->list_moves();
+            std::cout << "The moves for " << current_piece->get_name() << " are: " << std::endl;
             for (size_t i{0}; i<possible_moves.size();i++) {
                 std::cout << possible_moves[i] << ", ";
             }
             std::cout << std::endl;
 
+            
+            // pick where to move it
+            std::cout << "Where do you want to move it?" << std::endl;
+            bool valid{false};
+            std::string choice;
+            while (valid == false) {
+                std::cout << "Input your choice: ";
+                std::cin >> choice;
+                // check if the choice is an allowed move
+                for (size_t i{0}; i<possible_moves.size(); i++) {
+                    if (choice == possible_moves[i]) {
+                        valid = true;
+                    }
+                }
+                if (valid == false) { std::cout << "Incorrect move. Try again" << std::endl; }
 
+            }
+            // move the piece
+            // 1. check the piece you are moving to
+            // 2. If piece then remove it if empty continue
+            // 3. change the board representation a. erase b. add
+            piece_location = decode_chess_notation(current_piece->get_pos()); 
+            std::vector<int> new_position = decode_chess_notation(choice);
+            board_rep[] ;
 
-            is_king_safe();
+   
         }
 
-        void AI_turn() {
-
-        }
-
-        void trial_move(int* const board, piece pieces_array)
 
 }; // valgrind for memory leaks
 
