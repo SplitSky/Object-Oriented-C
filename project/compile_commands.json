@@ -1,0 +1,58 @@
+[
+ {
+  "directory": "/home/splitsky/Desktop/code_repositories/Object-Oriented-C/project",
+  "arguments": [
+   "g++",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-c",
+   "-o",
+   "main.o",
+   "main.cpp"
+  ],
+  "file": "main.cpp"
+ },
+ {
+  "directory": "/home/splitsky/Desktop/code_repositories/Object-Oriented-C/project",
+  "arguments": [
+   "g++",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-c",
+   "-o",
+   "classes.o",
+   "classes.cpp"
+  ],
+  "file": "classes.cpp"
+ },
+ {
+  "directory": "/home/splitsky/Desktop/code_repositories/Object-Oriented-C/project",
+  "arguments": [
+   "g++",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-c",
+   "-o",
+   "functions.o",
+   "functions.cpp"
+  ],
+  "file": "functions.cpp"
+ },
+ {
+  "directory": "/home/splitsky/Desktop/code_repositories/Object-Oriented-C/project",
+  "arguments": [
+   "g++",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-c",
+   "-o",
+   "board_class.o",
+   "board_class.cpp"
+  ],
+  "file": "board_class.cpp"
+ }
+]

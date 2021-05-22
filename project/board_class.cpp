@@ -473,5 +473,4 @@ void board::play_turn(int player) {
 }
 
 
-}; // valgrind for memory leaks
 

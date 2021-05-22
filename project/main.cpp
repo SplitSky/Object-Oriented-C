@@ -9,6 +9,8 @@
 #include<iterator>
 #include<cstring>
 #include "classes.h" // header including all class definitions
+#include "functions.h"
+#include "board_class.h"
 
 
 
