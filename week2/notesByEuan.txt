@@ -9,3 +9,7 @@ use make files you nonce
 put the -g flag before the file to display  code
 
 valgrind - checks for memory leaks - use it
+
+
+compiledb make
+-> this informs nvim how the files are connected
