@@ -46,7 +46,7 @@ class pawn : public piece {
         pawn();
         pawn(int x, int y, int init_point);
         virtual ~pawn();
-        bool find_possible_moves(int* board); 
+        virtual bool find_possible_moves(int* board); 
         bool find_attack_moves(int* board);
 };
 

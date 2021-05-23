@@ -37,7 +37,7 @@ int main() {
     //validation for input
     if (choice == 1) {
         // declare board object
-        board *Current_game = new board(true);
+        board *Current_game = new board(false);
         // populate the board
         // Start game
         Current_game->PvP();

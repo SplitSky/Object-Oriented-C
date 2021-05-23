@@ -14,9 +14,16 @@ class board {
         std::map<int, std::string> position_map = {{1,"A",},{2,"B",},{3,"C",},{4,"D",},{5,"E",},{6,"F",},{7,"G",},{8,"H",}};
         int standard_game[64] = {+5,+3,+4,+9,+10,+4,+3,+5,+1,+1,+1,+1,+1,+1,+1,+1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-5,-3,-4,-10,-9,-4,-3,-5};
         int *board_rep = new int[64];  // dynamically assign an integer array for board representation
-        std::vector<piece> pieces_array;
+        std::vector<piece*> pieces_array;
         bool check{false};
         bool mate{false};
+        pawn *pawn_memory = new pawn[16];
+        king *king_memory = new king[2];
+        queen *queen_memory = new queen[2];
+        knight *knight_memory = new knight[4];
+        rook *rook_memory = new rook[4];
+        bishop *bishop_memory = new bishop[4];
+
     public:
         board();
         board(bool default_board);

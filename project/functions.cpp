@@ -9,26 +9,23 @@ int convert_index(int x, int y) {
 }
 
 // translate number to chess notation
-std::string capitalizeString(std::string word) {
+std::string capitalizeString(std::string word) { // works
     transform(word.begin(), word.end(), word.begin(), [](unsigned char c){return std::toupper(c);});
     return word;
 }
  
-std::string convert_chess_notation(char character1, char character2) { // not tested
-    std::cout << "does this even run?" << std::endl;
+std::string convert_chess_notation(char character1, char character2) { // chess notation of the form A1 // works
     std::string* position_map = new std::string[8]{"A","B","C","D","E","F","G","H"}; 
     int position;
     char* temp_character = &character1;
     std::sscanf(temp_character, "%d", &position);
-    std::cout << "position" << position << " character1 " << character1<< std::endl;
     std::string chess_notation;
     for (int i{0}; i<8; i++) {
         if (position == i+1) {
-            //character1 = position_map[i];
-            //delete[] position_map;
-            std::cout << "returns: " << position_map[i] << " " << character2 << std::endl;
-            std::cout << "The retun is " << position_map[i]+std::to_string(character2) << std::endl;
-            return position_map[i]+std::to_string(character2);
+            chess_notation = position_map[i]; 
+            chess_notation += character2;
+            delete[] position_map;
+            return chess_notation;
         }
     }
     return "";

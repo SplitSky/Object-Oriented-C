@@ -6,66 +6,9 @@
 <string>clang version 11.1.0</string>
  <key>diagnostics</key>
  <array>
-  <dict>
-   <key>path</key>
-   <array>
-    <dict>
-     <key>kind</key><string>event</string>
-     <key>location</key>
-     <dict>
-      <key>line</key><integer>169</integer>
-      <key>col</key><integer>5</integer>
-      <key>file</key><integer>0</integer>
-     </dict>
-     <key>ranges</key>
-     <array>
-       <array>
-        <dict>
-         <key>line</key><integer>169</integer>
-         <key>col</key><integer>14</integer>
-         <key>file</key><integer>0</integer>
-        </dict>
-        <dict>
-         <key>line</key><integer>169</integer>
-         <key>col</key><integer>22</integer>
-         <key>file</key><integer>0</integer>
-        </dict>
-       </array>
-     </array>
-     <key>depth</key><integer>0</integer>
-     <key>extended_message</key>
-     <string>Value stored to &apos;player&apos; is never read</string>
-     <key>message</key>
-     <string>Value stored to &apos;player&apos; is never read</string>
-    </dict>
-   </array>
-   <key>description</key><string>Value stored to &apos;player&apos; is never read</string>
-   <key>category</key><string>Dead store</string>
-   <key>type</key><string>Dead increment</string>
-   <key>check_name</key><string>deadcode.DeadStores</string>
-   <!-- This hash is experimental and going to change! -->
-   <key>issue_hash_content_of_line_in_context</key><string>37b910ef165f827ee8ee343517bbe17d</string>
-  <key>issue_context_kind</key><string>C++ method</string>
-  <key>issue_context</key><string>PvP</string>
-  <key>issue_hash_function_offset</key><string>12</string>
-  <key>location</key>
-  <dict>
-   <key>line</key><integer>169</integer>
-   <key>col</key><integer>5</integer>
-   <key>file</key><integer>0</integer>
-  </dict>
-  <key>ExecutedLines</key>
-  <dict>
-   <key>0</key>
-   <array>
-    <integer>169</integer>
-   </array>
-  </dict>
-  </dict>
  </array>
  <key>files</key>
  <array>
-  <string>board_class.cpp</string>
  </array>
 </dict>
 </plist>

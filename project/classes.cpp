@@ -36,7 +36,7 @@ int* piece::get_pos_point() {
 }
 
 bool piece::find_possible_moves(int* board) {
-    possible_moves.push_back("00");
+    std::cout << "does this run?!" << std::endl;
     return false;
 }
 
@@ -65,21 +65,18 @@ pawn::pawn(int x, int y, int init_point) : piece{x,y,"pawn", init_point} {}
 pawn::~pawn() {};
 
 bool pawn::find_possible_moves(int* board) {
-    // position[0] ranges from 0 - 7. +1 for the real value
+    std::cout << "does this even run? ***************************************" << std::endl;
     std::string temp_string;
     bool check{false};
-    // first move
-
-    // possible moves
-    // +1,0 -1,0 or pv+,0
-    // if first 2 check then check
     int* x_moves;
     x_moves = new int[2]{+1,-1};
     possible_moves = {};
 
     // move ahead
     if ((position[1]+point_value >= 1) || (position[1]+point_value <= 8)) {
+        std::cout << "Within range!" << std::endl;
         if (board[convert_index(position[0], position[1] + point_value)] == 0) { // if the place ahead is empty
+            std::cout << "The place is empty!" << std::endl;
             temp_string = std::to_string(position[0]) + std::to_string(position[1] + point_value);
             possible_moves.push_back(temp_string);
             temp_string = "";
@@ -98,6 +95,10 @@ bool pawn::find_possible_moves(int* board) {
             }
         }
     }
+
+    std::cout << "printing pawn moves: " << std::endl;
+    std::cout << possible_moves[0] << " just first entry";
+
     delete x_moves;
     return check;
 }
