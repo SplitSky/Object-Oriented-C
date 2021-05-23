@@ -418,7 +418,6 @@ void board::play_turn(int player) {
     std::vector<std::string> possible_moves;
     std::vector<int> piece_location;
     find_all_moves(player); // generates possible moves
-    std::cout << "Generating moves" << std::endl;
     int king_index = find_king_index(player);
     check = is_king_safe(player, king_index);
     mate = can_king_move(player, king_index); // also overrides the king moves based on the check conditions.
@@ -434,7 +433,7 @@ void board::play_turn(int player) {
     possible_moves = current_piece->list_moves();
     std::cout << "The moves for " << current_piece->get_name() << " are: " << std::endl;
     for (size_t i{0}; i<possible_moves.size();i++) {
-        std::cout << possible_moves[i] << ", ";
+        std::cout << convert_chess_notation(possible_moves[i][0], possible_moves[i][1]) << ", ";
     }
     std::cout << std::endl;
 
@@ -448,7 +447,7 @@ void board::play_turn(int player) {
         std::cin >> choice;
         // check if the choice is an allowed move
         for (size_t i{0}; i<possible_moves.size(); i++) {
-            if (choice == possible_moves[i]) {
+            if (choice == convert_chess_notation(possible_moves[i][0], possible_moves[i][1]) ) {
                 valid = true;
             }
         }
@@ -460,15 +459,15 @@ void board::play_turn(int player) {
     // 2. If piece then remove it if empty continue
     // 3. change the board representation a. erase b. add
     
-    //std::vector<int> new_position = decode_chess_notation(choice);
-    //int* old_pos = current_piece->get_pos_point();
-    //piece* temp_piece = return_piece(new_position[0], new_position[1]);
-    //if (current_piece->get_point()*board_rep[convert_index(new_position[0], new_position[1])] < 0) { // if the new location is taken by enemy piece
+    std::vector<int> new_position = decode_chess_notation(choice);
+    int* old_pos = current_piece->get_pos_point();
+    piece* temp_piece = return_piece(new_position[0], new_position[1]);
+    if (current_piece->get_point()*board_rep[convert_index(new_position[0], new_position[1])] < 0) { // if the new location is taken by enemy piece
         // remove the piece from board_rep
-    //    temp_piece->remove();       
-    //}
-    //board_rep[convert_index(new_position[0], new_position[1])] = board_rep[convert_index(old_pos[0], old_pos[1])]; // override the board
-    //std::cout << "The piece moved" << std::endl; 
+        temp_piece->remove();       
+    }
+    board_rep[convert_index(new_position[0], new_position[1])] = board_rep[convert_index(old_pos[0], old_pos[1])]; // override the board
+    std::cout << "The piece moved" << std::endl; 
 }
 
 

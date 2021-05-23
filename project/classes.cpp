@@ -50,7 +50,10 @@ int piece::get_point() { return this->point_value; }
 
 bool piece::find_attack_moves(int* board) {return false;}
 
-void piece::set_possible_moves(std::vector<std::string> moves) {possible_moves = moves;}
+void piece::set_possible_moves(std::vector<std::string> moves) {
+    std::vector<std::string>().swap(possible_moves); // deallocates memory
+    possible_moves = moves;
+}
 
 void piece::remove() {removed = true;}
 
@@ -65,7 +68,6 @@ pawn::pawn(int x, int y, int init_point) : piece{x,y,"pawn", init_point} {}
 pawn::~pawn() {};
 
 bool pawn::find_possible_moves(int* board) {
-    std::cout << "does this even run? ***************************************" << std::endl;
     std::string temp_string;
     bool check{false};
     int* x_moves;
@@ -73,11 +75,9 @@ bool pawn::find_possible_moves(int* board) {
     possible_moves = {};
 
     // move ahead
-    if ((position[1]+point_value >= 1) || (position[1]+point_value <= 8)) {
-        std::cout << "Within range!" << std::endl;
-        if (board[convert_index(position[0], position[1] + point_value)] == 0) { // if the place ahead is empty
-            std::cout << "The place is empty!" << std::endl;
-            temp_string = std::to_string(position[0]) + std::to_string(position[1] + point_value);
+    if ((position[1]-point_value >= 1) || (position[1]-point_value <= 8)) {
+        if (board[convert_index(position[0], position[1] - point_value)] == 0) { // if the place ahead is empty
+            temp_string = std::to_string(position[0]) + std::to_string(position[1] - point_value);
             possible_moves.push_back(temp_string);
             temp_string = "";
         }
@@ -85,12 +85,12 @@ bool pawn::find_possible_moves(int* board) {
 
     for (size_t i{0}; i<2; i++) {
         if ((1 <= position[0] + x_moves[i]) && (8 >= position[0] + x_moves[i])) { // check range y-axis
-            if ((1 <= position[1] + point_value) && (8 >= position[1] + point_value)) { // check range x-axis
-                if (board[convert_index(position[0] + x_moves[i], position[1] + point_value)]*point_value < 0) { // the piece in the place is enemy
-                    temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + point_value);
+            if ((1 <= position[1] - point_value) && (8 >= position[1] - point_value)) { // check range x-axis
+                if (board[convert_index(position[0] + x_moves[i], position[1] - point_value)]*point_value < 0) { // the piece in the place is enemy
+                    temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] - point_value);
                     possible_moves.push_back(temp_string);
                     temp_string = "";                           
-                    if (board[convert_index(position[0] + x_moves[i], position[1] + point_value)]*point_value == -10) {check = true;}
+                    if (board[convert_index(position[0] + x_moves[i], position[1] - point_value)]*point_value == -10) {check = true;}
                 }
             }
         }
@@ -112,12 +112,12 @@ bool pawn::find_attack_moves(int* board) {
 
     for (size_t i{0}; i<2; i++) {
         if ((1 <= position[0] + x_moves[i]) && (8 >= position[0] + x_moves[i])) { // check range y-axis
-            if ((1 <= position[1] + point_value) && (8 >= position[1] + point_value)) { // check range x-axis
-                if (board[convert_index(position[0] + x_moves[i], position[1] + point_value)]*point_value < 0) { // the piece in the place is enemy
-                    temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + point_value);
+            if ((1 <= position[1] - point_value) && (8 >= position[1] - point_value)) { // check range x-axis
+                if (board[convert_index(position[0] + x_moves[i], position[1] - point_value)]*point_value < 0) { // the piece in the place is enemy
+                    temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] - point_value);
                     danger_moves.push_back(temp_string);
                     temp_string = "";                           
-                    if (board[convert_index(position[0] + x_moves[i], position[1] + point_value)]*point_value == -10) {check = true;}
+                    if (board[convert_index(position[0] + x_moves[i], position[1] - point_value)]*point_value == -10) {check = true;}
                 }
             }
         }
