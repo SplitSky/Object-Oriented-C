@@ -1,3 +1,4 @@
+#include <cstring>
 #include<string>
 #include<vector>
 #include<map>
@@ -13,6 +14,7 @@ board::board(bool default_board) {
     if (default_board == true) {
         // load in the initial file
         load_game(true);
+        std::cout << "loading the game - constructor" << std::endl;
         //print_data();
     } else {
         // load in a different name
@@ -72,8 +74,6 @@ void board::load_game(bool default_mode) { // works
         my_file.close();
     }
     // decode and create objects
-    int *board_rep2 = board_rep;
-    
     int piece_count{0};
     for (int j{1}; j<=8; j++) {
         for (int i{1}; i<=8;i++) { 
@@ -160,19 +160,15 @@ void board::PvP() {
     // 2. Play game
     // 3. Type "X" if you want to quit.
     // 4. Type "XS" if you want to quit and save the game
-    //int i{1};
-    // white player starts
-    //int player{1};
+    int i{1};
+    //white player starts
+    int player{1};
     //while (mate == false) {
-    //    std::cout << "The turn no." << i << " starts!" << std::endl;
-    //    play_turn(player);
-    //    player = player*-1;
+    std::cout << "The turn no." << i << " starts!" << std::endl;
+    play_turn(player);
+    player = player*-1;
     //}
-    
-    piece* temp = &pieces_array[0];
-    std::cout << "The name:  "<< temp->get_name();
-    std::cout << "The point " << temp->get_point();
-    std::cout << "The name again: " << pieces_array[0].get_name();
+
 }
 
 void board::PvAI() {
@@ -289,19 +285,11 @@ bool board::is_king_safe(int player, int king_index) {
     return true;
 }
 
-/// notes notes ntoes
-//
-// can the king moves runs once. The attack moves should be added as a variable in the board class
-// The can king move uses that array and returns the list of the king's moves which the player can select.
-// If the king can't move and is not safe the game ends
-
 bool board::can_king_move(int player, int king_index) {
-    bool safe{true};
     pieces_array[king_index].find_possible_moves(board_rep);
     std::string position = pieces_array[king_index].get_pos();
     std::vector<std::string> all_moves;
     std::vector<std::string> king_moves = pieces_array[king_index].list_moves();
-    int counter{0};
     // get array of enemy attack moves;
     for (size_t i{0}; i<32; i++) {
         // check if the piece was removed
@@ -348,29 +336,35 @@ bool board::can_king_move(int player, int king_index) {
 void board::find_all_moves(int player) {
     // +1 if white, -1 if black;
     piece* temp_piece; 
-    bool indicator{false};
     std::vector<std::string> player_moves;
     for (size_t i{0}; i<32; i++) { // loops through the pieces 
-        //temp_piece = pieces_array[i];
+        temp_piece = &pieces_array[i];
         std::cout << "The point value for piece is: " << temp_piece->get_name();
         if (pieces_array[i].get_point()*player > 0) { // this check makes sure the pieces for which moves we find belong to the player
-            indicator = pieces_array[i].find_possible_moves(board_rep);
+            pieces_array[i].find_possible_moves(board_rep);
         }   
     }
-    // enemy moves contains all the moves from a piece which checks our king
 }
 
 int board::get_choice() {
     bool valid = false;
-    
     std::string choice;
     std::cout << "Enter the position of the piece (in form ex. A1): ";
     std::cin >> choice;
 
-    for (size_t i{0}; i<32; i++) {
-        if (choice == pieces_array[i].get_pos()) {return i;}
+    while (valid == false) {
+        for (size_t i{0}; i<32; i++) {
+            std::string temp_string = pieces_array[i].get_pos();
+            std::cout << "the position: " << temp_string << " and individual: " << temp_string[0] << temp_string[1] << temp_string[2] << std::endl;
+            temp_string = convert_chess_notation(temp_string[0], temp_string[2]);
+            std::cout << "The converted: " << temp_string << " The choice: " << choice << std::endl;
+            if (choice == temp_string) {
+                return i;
+            } 
+        }
+        std::cout << "Enter the position of the piece (in form ex. A1): ";
+        std::cin >> choice;
     }
-
     return -1;
 }
 
@@ -418,7 +412,6 @@ void board::play_turn(int player) {
     // remove piece if necessary
     // check if the enemy king is under check
     find_all_moves(player); // generates possible moves
-    return; /// break point
 
     int king_index = find_king_index(player);
     check = is_king_safe(player, king_index);

@@ -19,8 +19,6 @@ int main() {
     bool loop{true};
 
 
-    board *a = new board(true);
-
     std::cout << "What would you like to do?" << std::endl;
     std::cout << "1) New Game - 2 Players" << std::endl;
     std::cout << "2) New Game - AI" << std::endl;
