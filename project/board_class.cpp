@@ -125,6 +125,10 @@ void board::load_game(bool default_mode) { // works
         }
     }
     delete[] counters;
+    //for (size_t i{0}; i<32; i++) {
+    //    std::cout <<"name : " << pieces_array[i]->get_name() << " position=" <<pieces_array[i]->get_pos() << std::endl;
+    //    std::cout << "point value " << pieces_array[i]->get_point() << std::endl;
+    //}
 }
 
 void board::print_data() {
@@ -181,11 +185,19 @@ void board::PvP() {
     int i{1};
     //white player starts
     int player{1};
-    //while (mate == false) {
-    std::cout << "The turn no." << i << " starts!" << std::endl;
-    play_turn(player);
-    player = player*-1;
-    //}
+    while (mate == false) {
+        std::cout << "The turn no." << i << " starts!" << std::endl;
+        if (player == 1) {
+            std::cout << "White has the move now." << std::endl;
+        } else {
+            std::cout << "Black has the move now." << std::endl; 
+        }
+        play_turn(player);
+        player = player*-1;
+        i++;
+        std::cout << "i=" <<i <<std::endl;
+        if (i == 3) {mate = true;}  // stopper
+    }
 
 }
 
@@ -204,9 +216,9 @@ void board::LoadGame() {
 }
 
 void board::print_board() {
-    std::cout << "   | A | B | C | D | E | F | G | H | " << std::endl;
+    std::cout << "   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | " << std::endl;
     std::cout << "##########################################" << std::endl;
-        for (size_t i{8}; i != 0; i--) {
+        for (size_t i{1}; i <=8; i++) {
             // Line starting with BLACK
             printLine(i);
         }
@@ -270,12 +282,17 @@ void board::printLine(int y) {
 
 }
 
-bool board::is_king_safe(int player, int king_index) {
+bool board::is_king_safe(int player) { 
+    // this function returns the negative of king's safety
     bool safe{true};
+
+    int king_index = find_king_index(player);
+    
     pieces_array[king_index]->find_possible_moves(board_rep);
     std::string position = pieces_array[king_index]->get_pos();
     std::vector<std::string> all_moves;
     std::vector<std::string> king_moves = pieces_array[king_index]->list_moves();
+    
     // get array of enemy attack moves;
     for (size_t i{0}; i<pieces_array.size(); i++) {
         // check if the piece was removed
@@ -293,17 +310,18 @@ bool board::is_king_safe(int player, int king_index) {
             for (size_t j{0}; j<all_moves.size(); j++) {
                 for (size_t k{0}; k<king_moves.size(); k++) {
                     if (king_moves[k] == all_moves[j]) {
-                        return false;
+                        return true;
                     }
                 }  
             }
 
         }
     }
-    return true;
+    return false;
 }
 
-bool board::can_king_move(int player, int king_index) {
+bool board::can_king_move(int player) {
+    int king_index = find_king_index(player);
     pieces_array[king_index]->find_possible_moves(board_rep);
     std::string position = pieces_array[king_index]->get_pos();
     std::vector<std::string> all_moves;
@@ -356,25 +374,26 @@ void board::find_all_moves(int player) { // adjust it to only allow player's mov
     std::vector<std::string> player_moves;
     for (size_t i{0}; i<pieces_array.size(); i++) { // loops through the pieces 
         pieces_array[i]->find_possible_moves(board_rep);
-        std::cout << "finding moves for " << pieces_array[i]->get_name();
-        std::cout << "finding moves" << std::endl;
            
     }
 }
 
-int board::get_choice() {
+int board::get_choice(int player) {
     bool valid = false;
     std::string choice;
     std::cout << "Enter the position of the piece (in form ex. A1): ";
     std::cin >> choice;
-
+    int point_value;
+    size_t moves_list;
     while (valid == false) {
         for (size_t i{0}; i<pieces_array.size(); i++) {
             std::string temp_string = pieces_array[i]->get_pos();
-            //std::cout << "the position: " << temp_string << " and individual: " << temp_string[0] << temp_string[1] << temp_string[2] << std::endl;
+            point_value = pieces_array[i]->get_point(); // get point for comparison
             temp_string = convert_chess_notation(temp_string[0], temp_string[2]);
-            std::cout << "The converted: " << temp_string << " The choice: " << choice << std::endl;
-            if (choice == temp_string) {
+            moves_list = pieces_array[i]->list_moves().size();
+
+            if ((choice == temp_string) && (point_value*player > 0) && (moves_list > 0)) { 
+                // there is a piece on the square and its friendly and it has moves available
                 return i; // the piece with an available position was selected
             } 
         }
@@ -418,15 +437,17 @@ void board::play_turn(int player) {
     std::vector<std::string> possible_moves;
     std::vector<int> piece_location;
     find_all_moves(player); // generates possible moves
-    int king_index = find_king_index(player);
-    check = is_king_safe(player, king_index);
-    mate = can_king_move(player, king_index); // also overrides the king moves based on the check conditions.
+    check = is_king_safe(player);
+    if (check) {mate = can_king_move(player);}
 
-    // get choice for move
-    indicator = get_choice();
+    std::cout << "Check status = " << check << std::endl;
+    std::cout << "mate status = " << mate << std::endl;
+
+    //// get choice for move
+    indicator = get_choice(player);
     while (indicator == -1) {
         std::cout << "The input is incorrect. Try again";
-        indicator = get_choice();
+        indicator = get_choice(player);
     }
     piece* current_piece = pieces_array[indicator];
     // display moves for the piece selected:
@@ -438,36 +459,47 @@ void board::play_turn(int player) {
     std::cout << std::endl;
 
     
-    // pick where to move it
-    std::cout << "Where do you want to move it?" << std::endl;
-    bool valid{false};
-    std::string choice;
-    while (valid == false) {
-        std::cout << "Input your choice: ";
-        std::cin >> choice;
-        // check if the choice is an allowed move
-        for (size_t i{0}; i<possible_moves.size(); i++) {
-            if (choice == convert_chess_notation(possible_moves[i][0], possible_moves[i][1]) ) {
-                valid = true;
-            }
-        }
-        if (valid == false) { std::cout << "Incorrect move. Try again" << std::endl; }
+    //// pick where to move it
+    //std::cout << "Where do you want to move it?" << std::endl;
+    //bool valid{false};
+    //std::string choice;
+    //while (valid == false) {
+    //    std::cout << "Input your choice: ";
+    //    std::cin >> choice;
+    //    // check if the choice is an allowed move
+    //    for (size_t i{0}; i<possible_moves.size(); i++) {
+    //        if (choice == convert_chess_notation(possible_moves[i][0], possible_moves[i][1]) ) {
+    //            valid = true;
+    //        }
+    //    }
+    //    if (valid == false) { std::cout << "Incorrect move. Try again" << std::endl; }
 
-    }
-    // move the piece
-    // 1. check the piece you are moving to
-    // 2. If piece then remove it if empty continue
-    // 3. change the board representation a. erase b. add
+    //}
+    //// move the piece
+    //// 1. check the piece you are moving to
+    //// 2. If piece then remove it if empty continue
+    //// 3. change the board representation a. erase b. add
+
+
     
-    std::vector<int> new_position = decode_chess_notation(choice);
-    int* old_pos = current_piece->get_pos_point();
-    piece* temp_piece = return_piece(new_position[0], new_position[1]);
-    if (current_piece->get_point()*board_rep[convert_index(new_position[0], new_position[1])] < 0) { // if the new location is taken by enemy piece
-        // remove the piece from board_rep
-        temp_piece->remove();       
-    }
-    board_rep[convert_index(new_position[0], new_position[1])] = board_rep[convert_index(old_pos[0], old_pos[1])]; // override the board
-    std::cout << "The piece moved" << std::endl; 
+    //std::vector<int> new_position = decode_chess_notation(choice);
+    //int* old_pos = current_piece->get_pos_point();
+    //piece* temp_piece = return_piece(new_position[0], new_position[1]);
+
+    //std::cout << " " << std::endl;
+    //std::cout << "printing before if statement" << std::endl;
+    //std::cout << "Current piece point: " << current_piece->get_point() << std::endl;
+    //std::cout << "board_rep at current position" << board_rep[convert_index(new_position[0], new_position[1])] << std::endl;
+
+    //if (temp_piece != nullptr) {
+    //    // square is not empty
+    //    temp_piece->remove();
+    //}
+
+    // regular move
+
+    //board_rep[convert_index(new_position[0], new_position[1])] = board_rep[convert_index(old_pos[0], old_pos[1])]; // override the board
+    //std::cout << "The piece moved" << std::endl; 
 }
 
 

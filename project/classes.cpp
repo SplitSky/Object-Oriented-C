@@ -36,7 +36,6 @@ int* piece::get_pos_point() {
 }
 
 bool piece::find_possible_moves(int* board) {
-    std::cout << "does this run?!" << std::endl;
     return false;
 }
 
@@ -72,12 +71,16 @@ bool pawn::find_possible_moves(int* board) {
     bool check{false};
     int* x_moves;
     x_moves = new int[2]{+1,-1};
-    possible_moves = {};
+    possible_moves.clear();
+    
+
+    
+
 
     // move ahead
     if ((position[1]-point_value >= 1) || (position[1]-point_value <= 8)) {
-        if (board[convert_index(position[0], position[1] - point_value)] == 0) { // if the place ahead is empty
-            temp_string = std::to_string(position[0]) + std::to_string(position[1] - point_value);
+        if (board[convert_index(position[0], position[1] + point_value)] == 0) { // if the place ahead is empty
+            temp_string = std::to_string(position[0]) + std::to_string(position[1] + point_value);
             possible_moves.push_back(temp_string);
             temp_string = "";
         }
@@ -85,21 +88,18 @@ bool pawn::find_possible_moves(int* board) {
 
     for (size_t i{0}; i<2; i++) {
         if ((1 <= position[0] + x_moves[i]) && (8 >= position[0] + x_moves[i])) { // check range y-axis
-            if ((1 <= position[1] - point_value) && (8 >= position[1] - point_value)) { // check range x-axis
-                if (board[convert_index(position[0] + x_moves[i], position[1] - point_value)]*point_value < 0) { // the piece in the place is enemy
-                    temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] - point_value);
+            if ((1 <= position[1] + point_value) && (8 >= position[1] + point_value)) { // check range x-axis
+                if (board[convert_index(position[0] + x_moves[i], position[1] + point_value)]*point_value < 0) { // the piece in the place is enemy
+                    temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + point_value);
                     possible_moves.push_back(temp_string);
                     temp_string = "";                           
-                    if (board[convert_index(position[0] + x_moves[i], position[1] - point_value)]*point_value == -10) {check = true;}
+                    if (board[convert_index(position[0] + x_moves[i], position[1] + point_value)]*point_value == -10) {check = true;}
                 }
             }
         }
     }
-
-    std::cout << "printing pawn moves: " << std::endl;
-    std::cout << possible_moves[0] << " just first entry";
-
     delete x_moves;
+
     return check;
 }
 
@@ -108,16 +108,16 @@ bool pawn::find_attack_moves(int* board) {
     bool check{false};
     int* x_moves;
     x_moves = new int[2]{+1,-1};
-    possible_moves = {};
+    possible_moves.clear();
 
     for (size_t i{0}; i<2; i++) {
         if ((1 <= position[0] + x_moves[i]) && (8 >= position[0] + x_moves[i])) { // check range y-axis
-            if ((1 <= position[1] - point_value) && (8 >= position[1] - point_value)) { // check range x-axis
-                if (board[convert_index(position[0] + x_moves[i], position[1] - point_value)]*point_value < 0) { // the piece in the place is enemy
-                    temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] - point_value);
+            if ((1 <= position[1] + point_value) && (8 >= position[1] + point_value)) { // check range x-axis
+                if (board[convert_index(position[0] + x_moves[i], position[1] + point_value)]*point_value < 0) { // the piece in the place is enemy
+                    temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + point_value);
                     danger_moves.push_back(temp_string);
                     temp_string = "";                           
-                    if (board[convert_index(position[0] + x_moves[i], position[1] - point_value)]*point_value == -10) {check = true;}
+                    if (board[convert_index(position[0] + x_moves[i], position[1] + point_value)]*point_value == -10) {check = true;}
                 }
             }
         }
@@ -133,12 +133,14 @@ knight::knight() :piece{} {
     point_value = 3;
 }
 knight::knight(int x, int y, int init_point) : piece{x,y,"knight", init_point} {
+    // position holds values 1-8
     position[0] = x;
     position[1] = y;
 }
 knight::~knight() {};
 bool knight::find_possible_moves(int* board) {
     std::string temp_string;
+    std::cout << "The moves running for knight" << std::endl;
     bool check{false};
     // first move
     int* x_moves;
@@ -147,8 +149,8 @@ bool knight::find_possible_moves(int* board) {
     y_moves = new int[8]{-1,-2,+1,+2,+1,-2,-1,+2};
 
     for (size_t i{0}; i<8; i++) {
-        if ((0 <= position[0] + x_moves[i]) && (7 >= position[0] + x_moves[i])) { // check range
-            if ((0 <= position[1] + y_moves[i]) && (7 >= position[1] + y_moves[i])) {
+        if ((0 < position[0] + x_moves[i]) && (9 > position[0] + x_moves[i])) { // check range
+            if ((0 < position[1] + y_moves[i]) && (9 > position[1] + y_moves[i])) {
 
                 if (board[convert_index(position[0] + x_moves[i], position[1] + y_moves[i])] == 0) { // if the place is empty
                     temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + y_moves[i]);
@@ -169,6 +171,7 @@ bool knight::find_possible_moves(int* board) {
     }
     delete x_moves;
     delete y_moves;
+
     return check;
 }
 
@@ -195,32 +198,41 @@ bool bishop::find_possible_moves(int* board) {
     for (size_t i{0}; i<4; i++) {
         // loops over four directions
         bool keep_going{true};
-        multiplier = 0;
+        multiplier = 1;
         while (keep_going) {
-            if (board[convert_index(position[0] + multiplier*x_moves[i], position[1] + multiplier*y_moves[i])] == 0) {
-                temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + y_moves[i]);
-                possible_moves.push_back(temp_string);
-                temp_string = "";
-
-            } else {
-                if (board[convert_index(position[0] + multiplier * x_moves[i], position[1] + multiplier * y_moves[i])]* point_value < 0) { // enemy piece
-                    temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + y_moves[i]);
+            
+            if ((position[0] + multiplier*x_moves[i] < 9) && (position[0] + multiplier*x_moves[i] > 0) && (position[1] + multiplier*y_moves[i] < 9) && (position[1] + multiplier*y_moves[i] > 0)) {
+                // values within range
+                if (board[convert_index(position[0] + multiplier*x_moves[i], position[1] + multiplier*y_moves[i])] == 0) {
+                    temp_string = std::to_string(position[0] + multiplier*x_moves[i]) + std::to_string(position[1] + multiplier*y_moves[i]);
                     possible_moves.push_back(temp_string);
-                    temp_string = "";                             
-                    keep_going = false;
-                    if (board[convert_index(position[0] + multiplier * x_moves[i], position[1] + multiplier * y_moves[i])]* point_value == -40) {
-                        check = true;
-                    }
+                    temp_string = "";
+
                 } else {
-                    // friendly piece
-                    // stop without appending
-                    keep_going = false;
+                    if (board[convert_index(position[0] + multiplier * x_moves[i], position[1] + multiplier * y_moves[i])]* point_value < 0) { // enemy piece
+                        temp_string = std::to_string(position[0] + multiplier * x_moves[i]) + std::to_string(position[1] + multiplier* y_moves[i]);
+                        possible_moves.push_back(temp_string);
+                        temp_string = "";                             
+                        keep_going = false;
+                        if (board[convert_index(position[0] + multiplier * x_moves[i], position[1] + multiplier * y_moves[i])]* point_value == -40) {
+                            check = true;
+                        }
+                    } else {
+                        // friendly piece
+                        // stop without appending
+                        keep_going = false;
+                    }
                 }
+                multiplier += 1;
+            } else {
+                keep_going = false;
             }
-            multiplier += 1;
+
+
         } // end while
         
     }
+
     delete x_moves;
     delete y_moves;
     return check;
@@ -250,31 +262,35 @@ bool rook::find_possible_moves(int* board) {
     for (size_t i{0}; i<4; i++) {
         // loops over four directions
         bool keep_going{true};
-        multiplier = 0;
+        multiplier = 1;
         while (keep_going) {
-            if (board[convert_index(position[0] + multiplier*x_moves[i], position[1] + multiplier*y_moves[i])] == 0) {
-                temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + y_moves[i]);
-                possible_moves.push_back(temp_string);
-                temp_string = "";
-            } else {
-                if (board[convert_index(position[0] + multiplier * x_moves[i], position[1] + multiplier * y_moves[i])]* point_value < 0) { // enemy piece
-                    temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + y_moves[i]);
+            if ((position[0] + multiplier*x_moves[i] > 0) && (position[0] + multiplier*x_moves[i] < 9) && (position[1] + multiplier*y_moves[i] > 0) && (position[1] + multiplier*y_moves[i] < 9)) {
+                if (board[convert_index(position[0] + multiplier*x_moves[i], position[1] + multiplier*y_moves[i])] == 0) {
+                    temp_string = std::to_string(position[0] + multiplier*x_moves[i]) + std::to_string(position[1] + multiplier*y_moves[i]);
                     possible_moves.push_back(temp_string);
-                    temp_string = "";                            
-                    // stop
-                    keep_going = false;
-                    if (board[convert_index(position[0] + multiplier * x_moves[i], position[1] + multiplier * y_moves[i])]* point_value == -50) {
-                        check = true;
-                    }
-
+                    temp_string = "";
                 } else {
-                    // friendly piece
-                    // stop without appending
-                    keep_going = false;
+                    if (board[convert_index(position[0] + multiplier * x_moves[i], position[1] + multiplier * y_moves[i])]* point_value < 0) { // enemy piece
+                        temp_string = std::to_string(position[0] + multiplier*x_moves[i]) + std::to_string(position[1] + multiplier*y_moves[i]);
+                        possible_moves.push_back(temp_string);
+                        temp_string = "";                            
+                        // stop
+                        keep_going = false;
+                        if (board[convert_index(position[0] + multiplier * x_moves[i], position[1] + multiplier * y_moves[i])]* point_value == -50) {
+                            check = true;
+                        }
+
+                    } else {
+                        // friendly piece
+                        // stop without appending
+                        keep_going = false;
+                    }
                 }
+                multiplier += 1;
+            } else {
+                keep_going = false;
             }
-            multiplier += 1;
-        } // end while
+        }// end while
         
     }
 
@@ -307,34 +323,40 @@ bool queen::find_possible_moves(int* board) {
     for (size_t i{0}; i<8; i++) {
         // loops over four directions
         bool keep_going{true};
-        multiplier = 0;
+        multiplier = 1;
         while (keep_going) {
-            if (board[convert_index(position[0] + multiplier*x_moves[i], position[1] + multiplier*y_moves[i])] == 0) {
-                temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + y_moves[i]);
-                possible_moves.push_back(temp_string);
-                temp_string = "";
-
-            } else {
-                if (board[convert_index(position[0] + multiplier * x_moves[i], position[1] + multiplier * y_moves[i])]* point_value < 0) { // enemy piece
-                    temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + y_moves[i]);
+            if ((position[0] + multiplier*x_moves[i] > 0) && (position[0] + multiplier*x_moves[i] < 9) && (position[1] + multiplier*y_moves[i] < 9) && (position[1] + multiplier*y_moves[i] > 0)) {
+                if (board[convert_index(position[0] + multiplier*x_moves[i], position[1] + multiplier*y_moves[i])] == 0) {
+                    temp_string = std::to_string(position[0] + multiplier*x_moves[i]) + std::to_string(position[1] + multiplier*y_moves[i]);
                     possible_moves.push_back(temp_string);
-                    temp_string = "";                            
-                    // stop
-                    keep_going = false;
-                    if (board[convert_index(position[0] + multiplier * x_moves[i], position[1] + multiplier * y_moves[i])] * point_value == -90) { // check
-                        check = true;
-                    }
+                    temp_string = "";
 
                 } else {
-                    // friendly piece
-                    // stop without appending
-                    keep_going = false;
+                    if (board[convert_index(position[0] + multiplier * x_moves[i], position[1] + multiplier * y_moves[i])]* point_value < 0) { // enemy piece
+                        temp_string = std::to_string(position[0] + multiplier*x_moves[i]) + std::to_string(position[1] + multiplier*y_moves[i]);
+                        possible_moves.push_back(temp_string);
+                        temp_string = "";                            
+                        // stop
+                        keep_going = false;
+                        if (board[convert_index(position[0] + multiplier * x_moves[i], position[1] + multiplier * y_moves[i])] * point_value == -90) { // check
+                            check = true;
+                        }
+
+                    } else {
+                        // friendly piece
+                        // stop without appending
+                        keep_going = false;
+                    }
                 }
+                multiplier += 1;
+            } else {
+                keep_going = false;
             }
-            multiplier += 1;
+
         } // end while
         
     }
+
 
     delete x_moves;
     delete y_moves;
@@ -364,20 +386,22 @@ bool king::find_possible_moves(int* board) {
     y_moves = new int[8]{+1,0,-1,0,+1,+1,-1,-1};
 
     for (size_t i{0}; i<8; i++) {
-        if (board[convert_index(position[0] + x_moves[i], position[1] + y_moves[i])] == 0) {
-            temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + y_moves[i]);
-            possible_moves.push_back(temp_string);
-            temp_string = "";
-
-        } else {
-            if (board[convert_index(position[0] + x_moves[i], position[1] + y_moves[i])]* point_value < 0) { // enemy piece
+        if ((position[1] + y_moves[i] > 0 && position[1] + y_moves[i] < 9)&&(position[0] + x_moves[i] > 0 && position[0] + x_moves[i] < 9)) {
+            if (board[convert_index(position[0] + x_moves[i], position[1] + y_moves[i])] == 0) {
                 temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + y_moves[i]);
                 possible_moves.push_back(temp_string);
                 temp_string = "";
-                // check if it's a check
-                if (board[convert_index(position[0] + x_moves[i], position[1] + y_moves[i])] * point_value == -100) {
-                    check = true;
-                } // check logic
+
+            } else {
+                if (board[convert_index(position[0] + x_moves[i], position[1] + y_moves[i])]* point_value < 0) { // enemy piece
+                    temp_string = std::to_string(position[0] + x_moves[i]) + std::to_string(position[1] + y_moves[i]);
+                    possible_moves.push_back(temp_string);
+                    temp_string = "";
+                    // check if it's a check
+                    if (board[convert_index(position[0] + x_moves[i], position[1] + y_moves[i])] * point_value == -100) {
+                        check = true;
+                    } // check logic
+                }
             }
         }
     }

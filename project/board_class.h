@@ -41,10 +41,10 @@ class board {
         void print_board();
         std::string get_piece_name(int n);
         void printLine(int y);
-        bool is_king_safe(int player, int king_index);
-        bool can_king_move(int player, int king_index);
+        bool is_king_safe(int player);
+        bool can_king_move(int player);
         void find_all_moves(int player);
-        int get_choice();
+        int get_choice(int player);
         int find_king_index(int player);
         piece* return_piece(int x, int y);
         void play_turn(int player);
