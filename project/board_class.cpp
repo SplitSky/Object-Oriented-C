@@ -284,37 +284,26 @@ void board::printLine(int y) {
 
 bool board::is_king_safe(int player) { 
     // this function returns the negative of king's safety
-    bool safe{true};
-
     int king_index = find_king_index(player);
-    
     pieces_array[king_index]->find_possible_moves(board_rep);
-    std::string position = pieces_array[king_index]->get_pos();
+    std::string position = convert_chess_notation(pieces_array[king_index]->get_pos()[0], pieces_array[king_index]->get_pos()[2]);
     std::vector<std::string> all_moves;
-    std::vector<std::string> king_moves = pieces_array[king_index]->list_moves();
-    
-    // get array of enemy attack moves;
     for (size_t i{0}; i<pieces_array.size(); i++) {
-        // check if the piece was removed
-        if (pieces_array[king_index]->get_point()*player < 0) { // find only moves for enemy pieces
+        if (pieces_array[i]->get_point()*player < 0) { // find only moves for enemy pieces
             if (pieces_array[i]->is_removed() == false) {
-                // list moves but with special function for pawns
                 if (pieces_array[i]->get_name() == "pawn") {
                     pieces_array[i]->find_attack_moves(board_rep);
                 } else { 
                     pieces_array[i]->find_possible_moves(board_rep);
                 }
             }
-            // append all lists together
             all_moves = pieces_array[i]->list_moves();
             for (size_t j{0}; j<all_moves.size(); j++) {
-                for (size_t k{0}; k<king_moves.size(); k++) {
-                    if (king_moves[k] == all_moves[j]) {
-                        return true;
-                    }
-                }  
+                std::cout << "position " << position << std::endl;
+                if (position == convert_chess_notation(all_moves[j][0],all_moves[j][1])) {
+                    return true;
+                }
             }
-
         }
     }
     return false;
@@ -322,14 +311,12 @@ bool board::is_king_safe(int player) {
 
 bool board::can_king_move(int player) {
     int king_index = find_king_index(player);
-    pieces_array[king_index]->find_possible_moves(board_rep);
-    std::string position = pieces_array[king_index]->get_pos();
-    std::vector<std::string> all_moves;
     std::vector<std::string> king_moves = pieces_array[king_index]->list_moves();
-    // get array of enemy attack moves;
+    
+    std::vector<std::string> all_moves;
     for (size_t i{0}; i<pieces_array.size(); i++) {
         // check if the piece was removed
-        if (pieces_array[king_index]->get_point()*player < 0) { // find only moves for enemy pieces
+        if (pieces_array[i]->get_point()*player < 0) { // find only moves for enemy pieces
             if (pieces_array[i]->is_removed() == false) {
                 // list moves but with special function for pawns
                 if (pieces_array[i]->get_name() == "pawn") {
@@ -338,35 +325,39 @@ bool board::can_king_move(int player) {
                     pieces_array[i]->find_possible_moves(board_rep);
                 }
             }
-            // append all lists together
             all_moves = pieces_array[i]->list_moves();
+            // loop through all moves
             for (size_t j{0}; j<all_moves.size(); j++) {
                 for (size_t k{0}; k<king_moves.size(); k++) {
-                    if (king_moves[k] == all_moves[j]) {
-                        king_moves[k] = "forbidden"; 
+                    std::string current_move = convert_chess_notation(king_moves[k][0], king_moves[k][1]);
+                    if (current_move == convert_chess_notation(all_moves[j][0], all_moves[j][1])) {
+                        king_moves[k] = "forbidden";
                     }
-                }  
+                }
             }
-
         }
     }
-    all_moves.clear();
-    // check what moves are available to the king
+
+
+    std::vector<std::string> new_moves;
     for (size_t i{0}; i<king_moves.size(); i++) {
         if (king_moves[i] != "forbidden") {
-            all_moves.push_back(king_moves[i]);
+            new_moves.push_back(king_moves[i]);
         }
     }
 
-    pieces_array[king_index]->set_possible_moves(all_moves); // overwrite the possible moves after check verification
-    
-    if (all_moves.size() == 0) {
-        return false; // check mate
+    if (new_moves.size() == 0) {
+        // king can't move
+        return true;
     } else {
-        return true; // just check
+        pieces_array[king_index]->set_possible_moves(new_moves);
+        // override the king moves
+        return false;
     }
+   
+}
 
-}           
+
 
 
 void board::find_all_moves(int player) { // adjust it to only allow player's moves
@@ -460,21 +451,21 @@ void board::play_turn(int player) {
 
     
     //// pick where to move it
-    //std::cout << "Where do you want to move it?" << std::endl;
-    //bool valid{false};
-    //std::string choice;
-    //while (valid == false) {
-    //    std::cout << "Input your choice: ";
-    //    std::cin >> choice;
-    //    // check if the choice is an allowed move
-    //    for (size_t i{0}; i<possible_moves.size(); i++) {
-    //        if (choice == convert_chess_notation(possible_moves[i][0], possible_moves[i][1]) ) {
-    //            valid = true;
-    //        }
-    //    }
-    //    if (valid == false) { std::cout << "Incorrect move. Try again" << std::endl; }
+    std::cout << "Where do you want to move it?" << std::endl;
+    bool valid{false};
+    std::string choice;
+    while (valid == false) {
+        std::cout << "Input your choice: ";
+        std::cin >> choice;
+        // check if the choice is an allowed move
+        for (size_t i{0}; i<possible_moves.size(); i++) {
+            if (choice == convert_chess_notation(possible_moves[i][0], possible_moves[i][1]) ) {
+                valid = true;
+            }
+        }
+        if (valid == false) { std::cout << "Incorrect move. Try again" << std::endl; }
 
-    //}
+    }
     //// move the piece
     //// 1. check the piece you are moving to
     //// 2. If piece then remove it if empty continue
