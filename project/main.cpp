@@ -16,7 +16,6 @@
 
 int main() {
     std::cout <<  "#### Welcome to Chess! ####"  << std::endl;
-    bool loop{true};
 
 
     std::cout << "What would you like to do?" << std::endl;
@@ -37,29 +36,16 @@ int main() {
     //validation for input
     if (choice == 1) {
         // declare board object
-        board *Current_game = new board(false);
-        // populate the board
-        // Start game
-        Current_game->PvP();
-        // Player 1 turn
-        // player 2 turn
-        // loop until game end
+        board *current_game = new board(true);
+        current_game->PvP();
     } else if (choice == 2) {
-        // declare the board object
-        //board *Current_game = new board(true);
-        // populate the board
-        // Start game
-        // Player 1 turn
-        // Player 2 turn
-        // loop until game end
+        board *current_game = new board(true);
+        current_game->PvAI();
     } else if (choice == 3) {
-        // declare the board object
-        //board *Current_game = new board(false);
-        // load the board
-        // resume the game
-        // note: check the point value of the last piece and resume the other colour
+        board *current_game = new board(false);
+        current_game->PvP();
     } else if(choice == 4) {
-        loop = false;
+        std::cout << "Quitting chess!" << std::endl;
     } else {
         std::cout << "Invalid choice. Try again.";
         std::cin.clear();

@@ -42,6 +42,7 @@ class board {
         std::string get_piece_name(int n);
         void printLine(int y);
         bool is_king_safe(int player);
+        std::vector<std::string> alter_king_moves(int player, int king_index);
         bool can_king_move(int player);
         void find_all_moves(int player);
         int get_choice(int player);
@@ -49,5 +50,10 @@ class board {
         piece* return_piece(int x, int y);
         void play_turn(int player);
         void move_piece(int piece_index, std::string new_pos);
+        void play_AI_turn(int player);
+        int do_trial_move(std::string move);
+        void ai_save();
+        void refresh_broad();
+        void clear_broad();
 };
 #endif

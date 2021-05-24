@@ -16,6 +16,7 @@ class piece {
         int point_value; // the colour depends on the sign of the point value. while is positive
         std::vector<std::string> possible_moves;
         bool removed;
+        bool moved{false};
         piece();
         piece(int x, int y, std::string init_name, int init_point);
         virtual ~piece();
@@ -33,6 +34,7 @@ class piece {
         virtual bool find_attack_moves(int* board);
         void set_possible_moves(std::vector<std::string> moves);
         void remove();
+        void piece_moved();
 };
 
 class pawn : public piece {
@@ -62,6 +64,7 @@ class bishop : public piece {
     public:
         bishop();
         bishop(int x, int y, int init_point);
+        ~bishop();
         bool find_possible_moves(int* board);
         bool find_attack_moves(int* board);
 };
@@ -79,6 +82,7 @@ class queen : public piece {
 public:
     queen();
     queen(int x, int y, int init_point);
+    ~queen();
     bool find_possible_moves(int* board);
     bool find_attack_moves(int* board);
 };

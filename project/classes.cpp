@@ -27,6 +27,10 @@ std::string piece::get_pos() {
     return std::to_string(position[0]) + "," + std::to_string(position[1]);
 }
 
+void piece::piece_moved() {
+    moved = true;
+}
+
 void piece::set_pos(int x, int y) {
     position[0] = x;
     position[1] = y;
@@ -66,17 +70,18 @@ pawn::pawn() :piece{} {
     point_value = 1;
 };
 pawn::pawn(int x, int y, int init_point) : piece{x,y,"pawn", init_point} {}
-pawn::~pawn() {};
+pawn::~pawn() {
+    possible_moves.clear();
+    possible_moves.swap(possible_moves);
+}
 
 bool pawn::find_possible_moves(int* board) {
+    possible_moves.clear();
     std::string temp_string;
     bool check{false};
     int* x_moves;
     x_moves = new int[2]{+1,-1};
     possible_moves.clear();
-    
-
-    
 
 
     // move ahead
@@ -85,6 +90,14 @@ bool pawn::find_possible_moves(int* board) {
             temp_string = std::to_string(position[0]) + std::to_string(position[1] + point_value);
             possible_moves.push_back(temp_string);
             temp_string = "";
+            
+            if ((board[convert_index(position[0], position[1] + 2*point_value)] == 0) && (moved == false)) {
+                // double move
+                temp_string = std::to_string(position[0]) + std::to_string(position[1] + 2*point_value);
+                possible_moves.push_back(temp_string);
+                temp_string = "";              
+            }
+
         }
     }
 
@@ -106,6 +119,7 @@ bool pawn::find_possible_moves(int* board) {
 }
 
 bool pawn::find_attack_moves(int* board) {
+    possible_moves.clear();
     std::string temp_string;
     bool check{false};
     int* x_moves;
@@ -139,9 +153,13 @@ knight::knight(int x, int y, int init_point) : piece{x,y,"knight", init_point} {
     position[0] = x;
     position[1] = y;
 }
-knight::~knight() {};
+knight::~knight() {
+    possible_moves.clear();
+    possible_moves.swap(possible_moves);
+};
 bool knight::find_possible_moves(int* board) {
     std::string temp_string;
+    possible_moves.clear();
     bool check{false};
     // first move
     int* x_moves;
@@ -188,7 +206,13 @@ bishop::bishop(int x, int y, int init_point) : piece{x,y,"bishop", init_point} {
     position[1] = y;
 }
 
+bishop::~bishop() {
+    possible_moves.clear();
+    possible_moves.swap(possible_moves);
+}
+
 bool bishop::find_possible_moves(int* board) {
+    possible_moves.clear();
     std::string temp_string;
     bool check{false};
     int multiplier;
@@ -241,6 +265,7 @@ bool bishop::find_possible_moves(int* board) {
 
 
 bool bishop::find_attack_moves(int* board) {
+    possible_moves.clear();
     std::string temp_string;
     bool check{false};
     int multiplier;
@@ -302,10 +327,14 @@ rook::rook(int x, int y, int init_point) : piece{x,y,"rook", init_point} {
     position[1] = y;
 }
 
-rook::~rook() {}
+rook::~rook() {
+    possible_moves.clear();
+    possible_moves.swap(possible_moves);
+}
 
 bool rook::find_possible_moves(int* board) {
     bool check{false};
+    possible_moves.clear();
     std::string temp_string;
     int multiplier;
     int* x_moves;
@@ -355,6 +384,7 @@ bool rook::find_possible_moves(int* board) {
 
 bool rook::find_attack_moves(int* board) {
     bool check{false};
+    possible_moves.clear();
     std::string temp_string;
     int multiplier;
     int* x_moves;
@@ -414,8 +444,14 @@ queen::queen(int x, int y, int init_point) : piece{x,y,"queen", init_point} {
     position[1] = y;
 }
 
+queen::~queen() {
+    possible_moves.clear();
+    possible_moves.swap(possible_moves);
+}
+
 bool queen::find_possible_moves(int* board) {
     std::string temp_string;
+    possible_moves.clear();
     int multiplier;
     int* x_moves;
     x_moves = new int[8]{0,+1,0,-1,-1,+1,+1,-1};
@@ -468,6 +504,7 @@ bool queen::find_possible_moves(int* board) {
 
 bool queen::find_attack_moves(int* board) {
     std::string temp_string;
+    possible_moves.clear();
     int multiplier;
     int* x_moves;
     x_moves = new int[8]{0,+1,0,-1,-1,+1,+1,-1};
@@ -530,7 +567,10 @@ king::king(int x, int y, int init_point) : piece{x,y,"king", init_point} {
     position[1] = y;
 }
 
-king::~king() {}
+king::~king() {
+    possible_moves.clear();
+    possible_moves.swap(possible_moves);
+}
 
 bool king::find_possible_moves(int* board) {
     possible_moves.clear();
