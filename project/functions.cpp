@@ -9,7 +9,7 @@ int convert_index(int x, int y) {
 }
 
 // translate number to chess notation
-std::string capitalizeString(std::string word) { // works
+std::string capitalize_string(std::string word) { // works
     transform(word.begin(), word.end(), word.begin(), [](unsigned char c){return std::toupper(c);});
     return word;
 }

@@ -184,7 +184,7 @@ std::string board::get_piece_name(int n) {
         }
     }
     if (n < 0) {
-        return capitalizeString(piece);
+        return capitalize_string(piece);
     }
     return piece;
 }
