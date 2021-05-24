@@ -492,6 +492,126 @@ void board::move_piece(int piece_index, std::string new_pos) {
     move.swap(move);
 }
 
+// ******************* AI functions *********************************
+int board::do_trial_move(int piece_index,std::string move) {
+    // the AI minimizes the move as it's playing black.
+    int score{0};
+    std::vector<int> move_arr = decode_chess_notation(move);
+    piece* current_piece = pieces_array[piece_index];
+    int* pos_point = current_piece->get_pos_point();
+    int back_up{board_rep[convert_index(move[0], move[1])]};
+    
+    if (back_up*back_up >= 100) {
+        return 1000; // the move is against the king so can't be done.
+    }
+    board_rep[convert_index(move[0], move[1])] = board_rep[convert_index(pos_point[0], pos_point[1])];
+    board_rep[convert_index(pos_point[0], pos_point[1])] = 0;
+    score = sum_board();
+    // revert to old board rep
+    board_rep[convert_index(pos_point[0], pos_point[1])] = board_rep[convert_index(move[0], move[1])];
+    board_rep[convert_index(move[0], move[1])] = back_up;
+
+    move.clear();
+    move.swap(move);
+    return score;
+}
 
 
+void board::play_AI_turn(int player, bool check) {
+    std::string ai_move;
+    std::vector<std::string> possible_moves;
+    find_all_moves(player);
+    
+    int score;
+    int piece_index;
+    piece* current_piece;
+    std::vector<std::string> temp_array;
+    check = is_king_safe(player);
+    bool first{true};
+    if (check) { // compose the moves allowed
+        // move king
+        mate = can_king_move(player);
+        if (mate) {
+            return;
+        } else { // only include the king moves to get out of check
+            int king_index = find_king_index(player);
+            possible_moves = pieces_array[king_index]->list_moves();
+            // select the first move that gets the king out of trouble
+            ai_move = convert_chess_notation(possible_moves[0][0],possible_moves[0][1]);
+            piece_index = king_index;
+        }
+    } else {
+        for (size_t i{0}; i<pieces_array.size(); i++) {
+            current_piece = pieces_array[i];
+            // for each piece
+            if ((current_piece->get_point()*player > 0) && (current_piece->is_removed() == false) && (current_piece->list_moves().size() > 0)) {
+                if (first) {
+                    ai_move = convert_chess_notation(current_piece->list_moves()[0][0],current_piece->list_moves()[0][1]);
+                    score = do_trial_move(i,ai_move);
+                    first = false;
+                    piece_index = i;
+                } // assign an initial move for comparison
+                optimise_move(i, &score, &ai_move, &piece_index);
+            } 
+        }
+    }
+    std::cout << "The chosen AI move: " << ai_move << std::endl;
+    move_piece(piece_index, ai_move); // do the chosen move
+    temp_array.clear();
+    temp_array.swap(temp_array);
+}
 
+void board::optimise_move(int piece_index, int* score, std::string* ai_move, int* best_piece) {
+    // take it one piece at the time
+    // optimises the moves for this piece
+    std::string best_move;
+    int sum;
+    
+    piece* current_piece = pieces_array[piece_index];
+    std::vector<std::string> all_moves = current_piece->list_moves();
+    for (size_t i{0}; i<all_moves.size(); i++) {
+        sum = do_trial_move(piece_index,all_moves[i]);
+        if (sum < *score) {
+            // better move found
+            *ai_move = convert_chess_notation(all_moves[i][0], all_moves[i][1]);
+            *score = sum;
+            *best_piece = piece_index;
+        }
+    }
+    all_moves.clear();
+    all_moves.swap(all_moves);
+} 
+
+
+void board::PvE() {
+    int i{1};
+    //white player starts - human
+    int player{1};
+    while (mate == false) {
+        std::cout << "The turn no." << i << " starts!" << std::endl;
+        if (player == 1) {
+            std::cout << "White has the move now. Go ahead human" << std::endl;
+            std::cout << "To continue press any key. To quit and save type x" << std::endl;
+            std::string choice;
+            std::cin >> choice;
+            if (choice == "x") {
+                save_game();
+                check = true;
+                mate = true;
+            }
+            play_turn(player);
+        } else {
+            std::cout << "Black has the move now. My turn now." << std::endl;
+            play_AI_turn(player, check);
+        }
+
+        player = player*-1;
+        i++;
+    }
+    std::cout << "Game over." << std::endl;
+    if (player == 1) {
+        std::cout << "White wins! Shame." << std::endl;
+    } else {
+        std::cout << "Black wins! Duh." << std::endl;
+    } 
+}

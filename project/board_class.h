@@ -48,5 +48,10 @@ class board {
         void play_turn(int player);
         void move_piece(int piece_index, std::string new_pos);
 
+        void play_AI_turn(int player, bool check);
+        int do_trial_move(int piece_index, std::string move);
+        void PvE();
+        void optimise_move(int piece_index, int* score, std::string* ai_move, int* best_piece);
+
 };
 #endif
