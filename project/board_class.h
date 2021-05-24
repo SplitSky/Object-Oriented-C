@@ -29,14 +29,11 @@ class board {
         board(bool default_board);
         ~board();
         int sum_board(); 
-        void start_game(); 
-
         void load_game(bool default_mode); 
         void print_data();
         void save_game();
         std::vector<std::string> list_moves();
         void PvP();
-        void PvAI();
         void LoadGame();
         void print_board();
         std::string get_piece_name(int n);
@@ -50,10 +47,6 @@ class board {
         piece* return_piece(int x, int y);
         void play_turn(int player);
         void move_piece(int piece_index, std::string new_pos);
-        void play_AI_turn(int player);
-        int do_trial_move(std::string move);
-        void ai_save();
-        void refresh_broad();
-        void clear_board();
+
 };
 #endif

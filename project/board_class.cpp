@@ -16,7 +16,6 @@ board::board(bool default_board) {
         load_game(true);
         //print_data();
     } else {
-        // load in a different name
         // read in the game file
         load_game(false);
     }
@@ -41,18 +40,7 @@ int board::sum_board() {
     return sum;
 }
 
-// initialization function
-void board::start_game() {
-    std::cout << "Welcome! What would you like to do?:" << std::endl;
-    std::cout << "1. Player vs Player" << std::endl;
-    std::cout << "2. Player vs AI" << std::endl;
-    std::string choice;
-    std::cin >> choice;
-}
-
-
-void board::load_game(bool default_mode) { // works
-    //std::vector<int> board_2;
+void board::load_game(bool default_mode) {
     std::string line;
     // loads the default board set up from a file
     std::fstream my_file;
@@ -130,17 +118,6 @@ void board::print_data() {
     std::cout << std::endl;
 }
 
-void board::ai_save() {
-    std::remove("AI_memory.txt"); 
-    std::ofstream file("AI_memory.txt");
-    for (size_t j{1}; j<=8; j++) {
-        for (size_t i{1}; i<=8;i++) {
-            file << board_rep[convert_index(i,j)] << std::endl;
-        }
-    }
-    file.close();
-}
-
 void board::save_game() { // works
     std::cout << "saving game" << std::endl;
     // delete old file
@@ -174,6 +151,12 @@ std::vector<std::string> board::list_moves() {
             }
         }
     }
+
+    moves.clear();
+    moves.swap(moves);
+    temp_moves.clear();
+    temp_moves.swap(temp_moves);   
+
     return moves;
 }
 
@@ -206,39 +189,6 @@ void board::PvP() {
     } else {
         std::cout << "Black wins!" << std::endl;
     } 
-}
-
-void board::PvAI() {
-    int i{1};
-    //white player starts - white is always human
-    int player{1};
-    while (mate == false) {
-        std::cout << "The turn no." << i << " starts!" << std::endl;
-        if (player == 1) {
-            std::cout << "White has the move now. Go ahead human" << std::endl;
-            std::cout << "To continue type anything. To quit and save type x" << std::endl;
-            std::string choice;
-            std::cin >> choice;
-            if (choice == "x") {
-                save_game();
-                check = true;
-                mate = true;
-            }
-            play_turn(player);
-        } else {
-            std::cout << "Black has the move now. My turn." << std::endl; 
-        }
-        
-        player = player*-1;
-        i++;
-    }
-    std::cout << "Game over." << std::endl;
-    if (player == 1) {
-        std::cout << "White wins!" << std::endl;
-    } else {
-        std::cout << "Black wins!" << std::endl;
-    } 
-
 }
 
 void board::LoadGame() {
@@ -331,11 +281,15 @@ bool board::is_king_safe(int player) {
             all_moves = pieces_array[i]->list_moves();
             for (size_t j{0}; j<all_moves.size(); j++) {
                 if (position == convert_chess_notation(all_moves[j][0],all_moves[j][1])) {
+                    all_moves.clear();
+                    all_moves.swap(all_moves);
                     return true;
                 }
             }
         }
     }
+    all_moves.clear();
+    all_moves.swap(all_moves);
     return false;
 }
 
@@ -373,6 +327,12 @@ std::vector<std::string> board::alter_king_moves(int player, int king_index) {
         }
     }
     pieces_array[king_index]->set_possible_moves(new_moves);
+
+    king_moves.clear();
+    king_moves.swap(king_moves);
+    all_moves.clear();
+    all_moves.swap(all_moves);
+
     return new_moves;
 }
 
@@ -381,9 +341,12 @@ bool board::can_king_move(int player) {
     std::vector<std::string> new_moves = alter_king_moves(player, king_index);
     if (new_moves.size() == 0) {
         // king can't move
+        new_moves.swap(new_moves);
         return true; // mate
     } else {
         pieces_array[king_index]->set_possible_moves(new_moves);
+        new_moves.clear();
+        new_moves.swap(new_moves);
         // override the king moves
         return false; // can still do something
     }
@@ -398,6 +361,8 @@ void board::find_all_moves(int player) { // adjust it to only allow player's mov
         }
     }
     alter_king_moves(player,find_king_index(player));
+    player_moves.clear();
+    player_moves.swap(player_moves);
 }
 
 int board::get_choice(int player) {
@@ -502,6 +467,11 @@ void board::play_turn(int player) {
         if (valid == false) { std::cout << "Incorrect move. Try again" << std::endl; }
     }
     move_piece(indicator, choice);
+
+    possible_moves.clear();
+    possible_moves.swap(possible_moves);
+    piece_location.clear();
+    piece_location.swap(piece_location);
 }
 
 void board::move_piece(int piece_index, std::string new_pos) {
@@ -518,166 +488,10 @@ void board::move_piece(int piece_index, std::string new_pos) {
     if (current_piece->get_name() == "pawn") {
         current_piece->piece_moved();
     }
-
+    move.clear();
+    move.swap(move);
 }
 
-int board::do_trial_move(std::string move) {
-    int score{0};
-    score = sum_board();
-    return score;
-}
 
-void board::play_AI_turn(int player) {
-    ai_save(); // backup the current board;
-    //print_board();
-    std::string temp_string;
-    int indicator;
-    std::string ai_move;
-    std::vector<std::string> possible_moves;
-    std::vector<int> piece_location;
-    find_all_moves(player); // generates possible moves
-    check = is_king_safe(player);
-    int score;
-    int sum;
 
-    if (check) { // compose the moves allowed
-        // move king
-        mate = can_king_move(player);
-        if (mate) {
-            return;
-        } else { // only include the king moves to get out of check
-            possible_moves = pieces_array[find_king_index(player)]->list_moves();//array of moves
-        }
-    } else {
-        // go through the optimization process
-        // select first available move
-        ai_move = possible_moves[0];
-        score = do_trial_move(ai_move);
-        score = sum_board();
-        for (size_t i{1}; i<possible_moves.size(); i++) {
-            // decode the move
-            ai_move = convert_chess_notation(possible_moves[i][0], possible_moves[i][1]);
-            // trial move
-            score = do_trial_move(ai_move);
-            // sum the board
-
-            // revert the move
-        }
-    }
-    //// get choice for move
-    indicator = get_choice(player);
-    while (indicator == -1) {
-        std::cout << "The input is incorrect. Try again";
-        indicator = get_choice(player);
-    }
-    piece* current_piece = pieces_array[indicator];
-    // display moves for the piece selected:
-    possible_moves = current_piece->list_moves();
-    std::cout << "The moves for " << current_piece->get_name() << " are: " << std::endl;
-    for (size_t i{0}; i<possible_moves.size();i++) {
-        std::cout << convert_chess_notation(possible_moves[i][0], possible_moves[i][1]) << ", ";
-    }
-    std::cout << std::endl;
-    //// pick where to move it
-    std::cout << "Where do you want to move it?" << std::endl;
-    bool valid{false};
-    std::string choice;
-    while (valid == false) {
-        std::cout << "Input your choice: ";
-        std::cin >> choice;
-        // check if the choice is an allowed move
-        for (size_t i{0}; i<possible_moves.size(); i++) {
-            if (choice == convert_chess_notation(possible_moves[i][0], possible_moves[i][1]) ) {
-                valid = true;
-            }
-        }
-        if (valid == false) { std::cout << "Incorrect move. Try again" << std::endl; }
-    }
-    move_piece(indicator, choice);
-}
-
-void board::refresh_broad() {
-    //std::vector<int> board_2;
-    std::string line;
-    // loads the default board set up from a file
-    std::fstream my_file;
-    clear_board();
-    my_file.open("AI_memory.txt", std::ios::in);
-    if (!my_file) {
-        std::cout << "No such file!" << std::endl;
-    } else {
-        for (size_t i{0}; i<64; i++) {
-            line = "";
-            getline(my_file, line);
-            board_rep[i] = std::stoi(line);
-        }
-        my_file.close();
-    }
-    // decode and create objects
-    int* counters = new int[6];
-    for (size_t i{0}; i<6; i++) {counters[i] = 0;} // fill it with zeroes
-    // pawn, knight, bishop, king, queen
-    for (int j{1}; j<=8; j++) {
-        for (int i{1}; i<=8;i++) { 
-
-            if (board_rep[convert_index(i,j)] == 1 || board_rep[convert_index(i,j)] == -1) { 
-                pawn_memory[counters[0]] = pawn{i,j,board_rep[convert_index(i,j)]};
-                pieces_array.push_back(&pawn_memory[counters[0]]);
-                counters[0]++;
-
-            } else if (board_rep[convert_index(i,j)] == 3 || board_rep[convert_index(i,j)] == -3) {
-                // knight
-
-                knight_memory[counters[1]] = knight{i,j,board_rep[convert_index(i,j)]};
-                pieces_array.push_back(&knight_memory[counters[1]]);
-                counters[1]++;
-
-            } else if (board_rep[convert_index(i,j)] == 4 || board_rep[convert_index(i,j)] == -4) {
-                // bishop
-                
-                bishop_memory[counters[2]] = bishop{i,j,board_rep[convert_index(i,j)]};
-                pieces_array.push_back(&bishop_memory[counters[2]]);
-                counters[2]++;
-
-            } else if (board_rep[convert_index(i,j)] == 5 || board_rep[convert_index(i,j)] == -5) {
-                // rook
-                rook_memory[counters[3]] = rook{i,j,board_rep[convert_index(i,j)]};
-                pieces_array.push_back(&rook_memory[counters[3]]);
-                counters[3]++;
-
-            } else if (board_rep[convert_index(i,j)] == 10 || board_rep[convert_index(i,j)] == -10) {
-                // king
-                king_memory[counters[4]] = king{i,j,board_rep[convert_index(i,j)]};
-                pieces_array.push_back(&king_memory[counters[4]]);
-                counters[4]++;
-
-            } else if (board_rep[convert_index(i,j)] == 9 || board_rep[convert_index(i,j)] == -9) {
-                // queen
-                queen_memory[counters[5]] = queen{i,j,board_rep[convert_index(i,j)]};
-                pieces_array.push_back(&queen_memory[counters[5]]);
-                counters[5]++;
-            }
-        }
-    }
-    delete[] counters;
-}
-
-void board::clear_board() {
-    delete[] board_rep;
-    delete[] pawn_memory;
-    delete[] knight_memory;
-    delete[] rook_memory;
-    delete[] queen_memory;
-    delete[] king_memory;
-    pieces_array.clear();
-    pieces_array.swap(pieces_array);
-
-    board_rep = new int[64];
-    pawn_memory = new pawn[16];
-    knight_memory = new knight[4];
-    king_memory = new king[2];
-    queen_memory = new queen[2];
-    rook_memory = new rook[4];
-    bishop_memory = new bishop[4];
-}
 

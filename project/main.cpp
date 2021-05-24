@@ -20,9 +20,8 @@ int main() {
 
     std::cout << "What would you like to do?" << std::endl;
     std::cout << "1) New Game - 2 Players" << std::endl;
-    std::cout << "2) New Game - AI" << std::endl;
-    std::cout << "3) Load Previous Game" << std::endl;
-    std::cout << "4) Close" << std::endl;
+    std::cout << "2) Load Previous Game" << std::endl;
+    std::cout << "3) Close" << std::endl;
     int choice;
     std::cout << "Enter your choice: ";
     //std::cin >> choice;
@@ -39,12 +38,9 @@ int main() {
         board *current_game = new board(true);
         current_game->PvP();
     } else if (choice == 2) {
-        board *current_game = new board(true);
-        current_game->PvAI();
-    } else if (choice == 3) {
         board *current_game = new board(false);
         current_game->PvP();
-    } else if(choice == 4) {
+    } else if(choice == 3) {
         std::cout << "Quitting chess!" << std::endl;
     } else {
         std::cout << "Invalid choice. Try again.";
