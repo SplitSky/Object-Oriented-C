@@ -12,11 +12,8 @@
 board::board() = default;
 board::board(bool default_board) {
     if (default_board == true) {
-        // load in the initial file
         load_game(true);
-        //print_data();
     } else {
-        // read in the game file
         load_game(false);
     }
 }
@@ -64,42 +61,35 @@ void board::load_game(bool default_mode) {
     // decode and create objects
     int* counters = new int[6];
     for (size_t i{0}; i<6; i++) {counters[i] = 0;} // fill it with zeroes
-    // pawn, knight, bishop, king, queen
     for (int j{1}; j<=8; j++) {
         for (int i{1}; i<=8;i++) { 
-
-            if (board_rep[convert_index(i,j)] == 1 || board_rep[convert_index(i,j)] == -1) { // experimental pawn loading
+            if (board_rep[convert_index(i,j)] == 1 || board_rep[convert_index(i,j)] == -1) {
                 // pawn 
                 pawn_memory[counters[0]] = pawn{i,j,board_rep[convert_index(i,j)]}; // assigns memory for objects
-                pieces_array.push_back(&pawn_memory[counters[0]]);
+                pieces_array.push_back(&pawn_memory[counters[0]]); // push pointer
                 counters[0]++;
 
             } else if (board_rep[convert_index(i,j)] == 3 || board_rep[convert_index(i,j)] == -3) {
                 // knight
-
                 knight_memory[counters[1]] = knight{i,j,board_rep[convert_index(i,j)]};
                 pieces_array.push_back(&knight_memory[counters[1]]);
                 counters[1]++;
 
             } else if (board_rep[convert_index(i,j)] == 4 || board_rep[convert_index(i,j)] == -4) {
                 // bishop
-                
                 bishop_memory[counters[2]] = bishop{i,j,board_rep[convert_index(i,j)]};
                 pieces_array.push_back(&bishop_memory[counters[2]]);
                 counters[2]++;
-
             } else if (board_rep[convert_index(i,j)] == 5 || board_rep[convert_index(i,j)] == -5) {
                 // rook
                 rook_memory[counters[3]] = rook{i,j,board_rep[convert_index(i,j)]};
                 pieces_array.push_back(&rook_memory[counters[3]]);
                 counters[3]++;
-
             } else if (board_rep[convert_index(i,j)] == 10 || board_rep[convert_index(i,j)] == -10) {
                 // king
                 king_memory[counters[4]] = king{i,j,board_rep[convert_index(i,j)]};
                 pieces_array.push_back(&king_memory[counters[4]]);
                 counters[4]++;
-
             } else if (board_rep[convert_index(i,j)] == 9 || board_rep[convert_index(i,j)] == -9) {
                 // queen
                 queen_memory[counters[5]] = queen{i,j,board_rep[convert_index(i,j)]};
@@ -111,17 +101,8 @@ void board::load_game(bool default_mode) {
     delete[] counters;
 }
 
-void board::print_data() {
-    for (size_t i{0}; i<64; i++) {
-        std::cout << board_rep[i] << ", ";
-    }
-    std::cout << std::endl;
-}
-
 void board::save_game() { // works
     std::cout << "saving game" << std::endl;
-    // delete old file
-     
     std::remove("last_game.txt"); 
     std::ofstream file("last_game.txt");
     for (size_t j{1}; j<=8; j++) {
@@ -132,35 +113,7 @@ void board::save_game() { // works
     file.close();
 }
 
-std::vector<std::string> board::list_moves() {
-    std::cout << "Listing possible moves: " << std::endl;
-    std::string temp_name;
-    std::vector<std::string> moves;
-    std::vector<std::string> temp_moves;
-    for (size_t i{0}; i<pieces_array.size(); i++) {
-        // check if empty
-        if (pieces_array[i]->is_removed() == false) { 
-            pieces_array[i]->find_possible_moves(board_rep);
-             
-            std::cout << "moves for ";
-            std::cout << pieces_array[i]->get_name();
-            std::cout << " positioned at : " << convert_chess_notation(pieces_array[i]->get_pos()[0],pieces_array[i]->get_pos()[2]);
-            temp_moves = pieces_array[i]->list_moves();
-            for (size_t j{0}; j < temp_moves.size() ; j++) {
-                moves.push_back(temp_moves[j]);
-            }
-        }
-    }
-
-    moves.clear();
-    moves.swap(moves);
-    temp_moves.clear();
-    temp_moves.swap(temp_moves);   
-
-    return moves;
-}
-
-void board::PvP() {
+void board::pvp() {
     int i{1};
     //white player starts
     int player{1};
@@ -189,12 +142,6 @@ void board::PvP() {
     } else {
         std::cout << "Black wins!" << std::endl;
     } 
-}
-
-void board::LoadGame() {
-    // Select the game type
-    // 1. Load the game
-    // 2. Resume the PvAI game
 }
 
 void board::print_board() {
@@ -300,7 +247,7 @@ std::vector<std::string> board::alter_king_moves(int player, int king_index) {
         // check if the piece was removed
         if (pieces_array[i]->get_point()*player < 0) { // find only moves for enemy pieces
             if (pieces_array[i]->is_removed() == false) {
-                // list moves but with special function to find hot squares
+                // list moves but with special function to find squares which do check the king
                 if ((pieces_array[i]->get_name() == "king") || (pieces_array[i]->get_name() == "knight")) {
                     pieces_array[i]->find_possible_moves(board_rep);
                 } else { 
@@ -309,7 +256,6 @@ std::vector<std::string> board::alter_king_moves(int player, int king_index) {
             }
             all_moves = pieces_array[i]->list_moves();
 
-            // loop through all moves
             for (size_t j{0}; j<all_moves.size(); j++) {
                 for (size_t k{0}; k<king_moves.size(); k++) {
                     std::string current_move = convert_chess_notation(king_moves[k][0], king_moves[k][1]);
@@ -327,12 +273,10 @@ std::vector<std::string> board::alter_king_moves(int player, int king_index) {
         }
     }
     pieces_array[king_index]->set_possible_moves(new_moves);
-
     king_moves.clear();
     king_moves.swap(king_moves);
     all_moves.clear();
     all_moves.swap(all_moves);
-
     return new_moves;
 }
 
@@ -352,10 +296,10 @@ bool board::can_king_move(int player) {
     }
 }
 
-void board::find_all_moves(int player) { // adjust it to only allow player's moves
+void board::find_all_moves(int player) {
     // +1 if white, -1 if black;
     std::vector<std::string> player_moves;
-    for (size_t i{0}; i<pieces_array.size(); i++) { // loops through the pieces
+    for (size_t i{0}; i<pieces_array.size(); i++) {
         if (pieces_array[i]->is_removed() == false) {
             pieces_array[i]->find_possible_moves(board_rep);
         }
@@ -380,8 +324,7 @@ int board::get_choice(int player) {
             moves_list = pieces_array[i]->list_moves().size();
 
             if ((choice == temp_string) && (point_value*player > 0) && (moves_list > 0) && (pieces_array[i]->is_removed() == false)) { 
-                // there is a piece on the square and its friendly and it has moves available and it wasn't removed
-                return i; // the piece with an available position was selected
+                return i;
             } 
         }
         std::cout << "Enter the position of the piece (in form ex. A1): ";
@@ -391,8 +334,7 @@ int board::get_choice(int player) {
 }
 
 int board::find_king_index(int player) {
-    // w>0 ; b<0
-    for (size_t i{0}; i<pieces_array.size(); i++) { // loop through pieces array
+    for (size_t i{0}; i<pieces_array.size(); i++) {
         if (pieces_array[i]->get_name() == "king") {
             if (pieces_array[i]->get_point()*player > 0) {
                 return i;
@@ -413,7 +355,6 @@ piece* board::return_piece(int x, int y) {
                 return current_object;
             }
         } 
-
     }
     return nullptr;
 }
@@ -435,9 +376,7 @@ void board::play_turn(int player) {
         }
     }
 
-    
-
-    //// get choice for move
+    //// get player choice for move
     indicator = get_choice(player);
     while (indicator == -1) {
         std::cout << "The input is incorrect. Try again";
@@ -472,6 +411,7 @@ void board::play_turn(int player) {
     possible_moves.swap(possible_moves);
     piece_location.clear();
     piece_location.swap(piece_location);
+    // deallocate memory
 }
 
 void board::move_piece(int piece_index, std::string new_pos) {
@@ -492,7 +432,7 @@ void board::move_piece(int piece_index, std::string new_pos) {
     move.swap(move);
 }
 
-// ******************* AI functions *********************************
+// *************************** AI functions *********************************
 int board::do_trial_move(int piece_index,std::string move) {
     // the AI minimizes the move as it's playing black.
     int score{0};
@@ -515,7 +455,6 @@ int board::do_trial_move(int piece_index,std::string move) {
     move.swap(move);
     return score;
 }
-
 
 void board::play_AI_turn(int player, bool check) {
     std::string ai_move;
@@ -583,7 +522,7 @@ void board::optimise_move(int piece_index, int* score, std::string* ai_move, int
 } 
 
 
-void board::PvE() {
+void board::pve() {
     int i{1};
     //white player starts - human
     int player{1};
@@ -612,6 +551,6 @@ void board::PvE() {
     if (player == 1) {
         std::cout << "White wins! Shame." << std::endl;
     } else {
-        std::cout << "Black wins! Duh." << std::endl;
+        std::cout << "Black wins! Duh." << std::endl; // insult for good measure
     } 
 }

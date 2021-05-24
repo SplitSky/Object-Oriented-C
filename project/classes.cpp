@@ -190,7 +190,6 @@ bool knight::find_possible_moves(int* board) {
     }
     delete x_moves;
     delete y_moves;
-
     return check;
 }
 
@@ -304,12 +303,8 @@ bool bishop::find_attack_moves(int* board) {
             } else {
                 keep_going = false;
             }
-
-
-        } // end while
-        
+        }
     }
-
     delete x_moves;
     delete y_moves;
     return check;
@@ -341,7 +336,6 @@ bool rook::find_possible_moves(int* board) {
     x_moves = new int[4]{0,+1,0,-1};
     int* y_moves;
     y_moves = new int[4]{+1,0,-1,0};
-
     for (size_t i{0}; i<4; i++) {
         // loops over four directions
         bool keep_going{true};
@@ -373,7 +367,7 @@ bool rook::find_possible_moves(int* board) {
             } else {
                 keep_going = false;
             }
-        }// end while
+        }
         
     }
 
@@ -460,7 +454,7 @@ bool queen::find_possible_moves(int* board) {
     bool check{false};
 
     for (size_t i{0}; i<8; i++) {
-        // loops over four directions
+        // loops over all directions
         bool keep_going{true};
         multiplier = 1;
         while (keep_going) {
@@ -475,12 +469,10 @@ bool queen::find_possible_moves(int* board) {
                         temp_string = std::to_string(position[0] + multiplier*x_moves[i]) + std::to_string(position[1] + multiplier*y_moves[i]);
                         possible_moves.push_back(temp_string);
                         temp_string = "";                            
-                        // stop
                         keep_going = false;
                         if (board[convert_index(position[0] + multiplier * x_moves[i], position[1] + multiplier * y_moves[i])] * point_value == -90) { // check
                             check = true;
                         }
-
                     } else {
                         // friendly piece
                         // stop without appending
@@ -491,8 +483,7 @@ bool queen::find_possible_moves(int* board) {
             } else {
                 keep_going = false;
             }
-
-        } // end while
+        }
         
     }
 
@@ -511,9 +502,7 @@ bool queen::find_attack_moves(int* board) {
     int* y_moves;
     y_moves = new int[8]{+1,0,-1,0,+1,+1,-1,-1};
     bool check{false};
-
     for (size_t i{0}; i<8; i++) {
-        // loops over four directions
         bool keep_going{true};
         multiplier = 1;
         while (keep_going) {
@@ -542,12 +531,8 @@ bool queen::find_attack_moves(int* board) {
             } else {
                 keep_going = false;
             }
-
-        } // end while
-        
+        } 
     }
-
-
     delete x_moves;
     delete y_moves;
     return check;
@@ -555,8 +540,6 @@ bool queen::find_attack_moves(int* board) {
 
 
 // king definitions
-
-
 king::king() : piece {} {
     name = "king";
     point_value = 10;
@@ -596,12 +579,11 @@ bool king::find_possible_moves(int* board) {
                     // check if it's a check
                     if (board[convert_index(position[0] + x_moves[i], position[1] + y_moves[i])] * point_value == -100) {
                         check = true;
-                    } // check logic
+                    }
                 }
             }
         }
     }
-
     delete x_moves;
     delete y_moves;
     return check;
