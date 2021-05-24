@@ -54,6 +54,6 @@ class board {
         int do_trial_move(std::string move);
         void ai_save();
         void refresh_broad();
-        void clear_broad();
+        void clear_board();
 };
 #endif

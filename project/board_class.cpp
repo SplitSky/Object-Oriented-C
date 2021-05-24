@@ -28,6 +28,7 @@ board::~board() {
         delete[] rook_memory;
         delete[] queen_memory;
         delete[] king_memory;
+        pieces_array.clear();
         pieces_array.swap(pieces_array);
 
     }
@@ -668,10 +669,15 @@ void board::clear_board() {
     delete[] rook_memory;
     delete[] queen_memory;
     delete[] king_memory;
+    pieces_array.clear();
     pieces_array.swap(pieces_array);
 
     board_rep = new int[64];
-    pawn_memory = new 
-
+    pawn_memory = new pawn[16];
+    knight_memory = new knight[4];
+    king_memory = new king[2];
+    queen_memory = new queen[2];
+    rook_memory = new rook[4];
+    bishop_memory = new bishop[4];
 }
 
