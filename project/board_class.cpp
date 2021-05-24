@@ -14,7 +14,6 @@ board::board(bool default_board) {
     if (default_board == true) {
         // load in the initial file
         load_game(true);
-        std::cout << "loading the game - constructor" << std::endl;
         //print_data();
     } else {
         // load in a different name
@@ -67,9 +66,9 @@ void board::load_game(bool default_mode) { // works
         my_file.open("last_game.txt", std::ios::in);
     }
     if (!my_file) {
-        // std::cout << "No such file!" << std::endl;
+        std::cout << "No such file!" << std::endl;
     } else {
-        // std::cout << "File present!" << std::endl;
+        std::cout << "File present!" << std::endl;
         for (size_t i{0}; i<64; i++) {
             line = "";
             getline(my_file, line);
@@ -125,15 +124,11 @@ void board::load_game(bool default_mode) { // works
         }
     }
     delete[] counters;
-    //for (size_t i{0}; i<32; i++) {
-    //    std::cout <<"name : " << pieces_array[i]->get_name() << " position=" <<pieces_array[i]->get_pos() << std::endl;
-    //    std::cout << "point value " << pieces_array[i]->get_point() << std::endl;
-    //}
 }
 
 void board::print_data() {
     for (size_t i{0}; i<64; i++) {
-        std::cout << "the variable entry" << board_rep[i] << ", ";
+        std::cout << board_rep[i] << ", ";
     }
     std::cout << std::endl;
 }
@@ -152,8 +147,7 @@ void board::save_game() { // works
 }
 
 
-std::vector<std::string> board::list_moves() { // list all moves without check monitoring
-    // loop through all objects and list moves
+std::vector<std::string> board::list_moves() {
     std::cout << "Listing possible moves: " << std::endl;
     std::string temp_name;
     std::vector<std::string> moves;
@@ -165,11 +159,10 @@ std::vector<std::string> board::list_moves() { // list all moves without check m
              
             std::cout << "moves for ";
             std::cout << pieces_array[i]->get_name();
-            std::cout << " positioned at : " << pieces_array[i]->get_pos();
-
+            std::cout << " positioned at : " << convert_chess_notation(pieces_array[i]->get_pos()[0],pieces_array[i]->get_pos()[2]);
             temp_moves = pieces_array[i]->list_moves();
             for (size_t j{0}; j < temp_moves.size() ; j++) {
-                moves.push_back(temp_moves[j]); // iterate over the individual moves
+                moves.push_back(temp_moves[j]);
             }
         }
     }
@@ -195,10 +188,7 @@ void board::PvP() {
         play_turn(player);
         player = player*-1;
         i++;
-        std::cout << "i=" <<i <<std::endl;
-        if (i == 3) {mate = true;}  // stopper
     }
-
 }
 
 void board::PvAI() {
@@ -216,7 +206,7 @@ void board::LoadGame() {
 }
 
 void board::print_board() {
-    std::cout << "   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | " << std::endl;
+    std::cout << "   | A | B | C | D | E | F | G | H | " << std::endl;
     std::cout << "##########################################" << std::endl;
         for (size_t i{1}; i <=8; i++) {
             // Line starting with BLACK
@@ -299,7 +289,6 @@ bool board::is_king_safe(int player) {
             }
             all_moves = pieces_array[i]->list_moves();
             for (size_t j{0}; j<all_moves.size(); j++) {
-                std::cout << "position " << position << std::endl;
                 if (position == convert_chess_notation(all_moves[j][0],all_moves[j][1])) {
                     return true;
                 }
@@ -318,11 +307,11 @@ bool board::can_king_move(int player) {
         // check if the piece was removed
         if (pieces_array[i]->get_point()*player < 0) { // find only moves for enemy pieces
             if (pieces_array[i]->is_removed() == false) {
-                // list moves but with special function for pawns
-                if (pieces_array[i]->get_name() == "pawn") {
-                    pieces_array[i]->find_attack_moves(board_rep);
-                } else { 
+                // list moves but with special function to find hot squares
+                if ((pieces_array[i]->get_name() == "king") || (pieces_array[i]->get_name() == "knight")) {
                     pieces_array[i]->find_possible_moves(board_rep);
+                } else { 
+                    pieces_array[i]->find_attack_moves(board_rep);
                 }
             }
             all_moves = pieces_array[i]->list_moves();
@@ -338,7 +327,6 @@ bool board::can_king_move(int player) {
         }
     }
 
-
     std::vector<std::string> new_moves;
     for (size_t i{0}; i<king_moves.size(); i++) {
         if (king_moves[i] != "forbidden") {
@@ -348,11 +336,11 @@ bool board::can_king_move(int player) {
 
     if (new_moves.size() == 0) {
         // king can't move
-        return true;
+        return true; // mate
     } else {
         pieces_array[king_index]->set_possible_moves(new_moves);
         // override the king moves
-        return false;
+        return false; // can still do something
     }
    
 }
@@ -363,9 +351,10 @@ bool board::can_king_move(int player) {
 void board::find_all_moves(int player) { // adjust it to only allow player's moves
     // +1 if white, -1 if black;
     std::vector<std::string> player_moves;
-    for (size_t i{0}; i<pieces_array.size(); i++) { // loops through the pieces 
-        pieces_array[i]->find_possible_moves(board_rep);
-           
+    for (size_t i{0}; i<pieces_array.size(); i++) { // loops through the pieces
+        if (pieces_array[i]->is_removed() == false) {
+            pieces_array[i]->find_possible_moves(board_rep);
+        }
     }
 }
 
@@ -383,8 +372,8 @@ int board::get_choice(int player) {
             temp_string = convert_chess_notation(temp_string[0], temp_string[2]);
             moves_list = pieces_array[i]->list_moves().size();
 
-            if ((choice == temp_string) && (point_value*player > 0) && (moves_list > 0)) { 
-                // there is a piece on the square and its friendly and it has moves available
+            if ((choice == temp_string) && (point_value*player > 0) && (moves_list > 0) && (pieces_array[i]->is_removed() == false)) { 
+                // there is a piece on the square and its friendly and it has moves available and it wasn't removed
                 return i; // the piece with an available position was selected
             } 
         }
@@ -411,12 +400,14 @@ piece* board::return_piece(int x, int y) {
     int* array_temp;
     piece* current_object;
     for (size_t i{0}; i<pieces_array.size(); i++) {
-        current_object = pieces_array[i]; /// this is absolute wrong
-        array_temp = current_object->get_pos_point(); 
-        if (array_temp[0] == x && array_temp[1] == y){
-            // position matches
-            return current_object;
-        }
+        if (pieces_array[i]->is_removed() == false) {
+            current_object = pieces_array[i];
+            array_temp = current_object->get_pos_point();
+            if ((array_temp[0] == x) && (array_temp[1] == y)) {
+                return current_object;
+            }
+        } 
+
     }
     return nullptr;
 }
@@ -466,32 +457,23 @@ void board::play_turn(int player) {
         if (valid == false) { std::cout << "Incorrect move. Try again" << std::endl; }
 
     }
-    //// move the piece
-    //// 1. check the piece you are moving to
-    //// 2. If piece then remove it if empty continue
-    //// 3. change the board representation a. erase b. add
+    move_piece(indicator, choice);
 
-
-    
-    //std::vector<int> new_position = decode_chess_notation(choice);
-    //int* old_pos = current_piece->get_pos_point();
-    //piece* temp_piece = return_piece(new_position[0], new_position[1]);
-
-    //std::cout << " " << std::endl;
-    //std::cout << "printing before if statement" << std::endl;
-    //std::cout << "Current piece point: " << current_piece->get_point() << std::endl;
-    //std::cout << "board_rep at current position" << board_rep[convert_index(new_position[0], new_position[1])] << std::endl;
-
-    //if (temp_piece != nullptr) {
-    //    // square is not empty
-    //    temp_piece->remove();
-    //}
-
-    // regular move
-
-    //board_rep[convert_index(new_position[0], new_position[1])] = board_rep[convert_index(old_pos[0], old_pos[1])]; // override the board
-    //std::cout << "The piece moved" << std::endl; 
 }
 
+void board::move_piece(int piece_index, std::string new_pos) {
+    std::vector<int> move = decode_chess_notation(new_pos);
+    piece* current_piece = pieces_array[piece_index];
+
+    if (board_rep[convert_index(move[0], move[1])] != 0) {
+        piece* enemy_piece = return_piece(move[0], move[1]);
+        enemy_piece->remove();
+    }
+    int* pos_point = current_piece->get_pos_point();
+    board_rep[convert_index(move[0], move[1])] = board_rep[convert_index(pos_point[0], pos_point[1])]; //override the board
+    board_rep[convert_index(pos_point[0], pos_point[1])] = 0; // clear up the old position
+    current_piece->set_pos(move[0], move[1]);
+
+}
 
 

@@ -34,13 +34,14 @@ std::string convert_chess_notation(char character1, char character2) { // chess 
 std::vector<int> decode_chess_notation(std::string notation) {
     std::vector<int> position = {0,0};
     char character1 = notation[0];
-    char character2 = notation[1];
+    char* character2 = &notation[1];
     char* position_map = new char[8]{'A','B','C','D','E','F','G','H'}; 
     for (int i{0}; i<8; i++) {
         if (character1 == position_map[i]) {
             delete[] position_map;
-            position[0] = i;
-            position[1] = int(character2);
+            position[0] = i+1;
+            std::sscanf(character2, "%d", &position[1]); // convert char to int
+            //position[1] = int(character2);
             return position;
         }
     }

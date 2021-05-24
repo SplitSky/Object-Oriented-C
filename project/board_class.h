@@ -48,5 +48,6 @@ class board {
         int find_king_index(int player);
         piece* return_piece(int x, int y);
         void play_turn(int player);
+        void move_piece(int piece_index, std::string new_pos);
 };
 #endif

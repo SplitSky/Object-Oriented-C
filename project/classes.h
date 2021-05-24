@@ -15,7 +15,7 @@ class piece {
         std::string name; // e.g. pawn
         int point_value; // the colour depends on the sign of the point value. while is positive
         std::vector<std::string> possible_moves;
-        bool removed{false};
+        bool removed;
         piece();
         piece(int x, int y, std::string init_name, int init_point);
         virtual ~piece();
@@ -58,11 +58,12 @@ class knight : public piece {
         bool find_possible_moves(int* board);
 };
 
-class bishop : public piece { // get the find moves function outside of the class definition
+class bishop : public piece { 
     public:
         bishop();
         bishop(int x, int y, int init_point);
         bool find_possible_moves(int* board);
+        bool find_attack_moves(int* board);
 };
 
 class rook : public piece {   
@@ -71,6 +72,7 @@ class rook : public piece {
         rook(int x, int y, int init_point);
         ~rook();
         bool find_possible_moves(int* board);
+        bool find_attack_moves(int* board);
 };
 
 class queen : public piece {
@@ -78,6 +80,7 @@ public:
     queen();
     queen(int x, int y, int init_point);
     bool find_possible_moves(int* board);
+    bool find_attack_moves(int* board);
 };
 
 class king : public piece { // one in each direction
